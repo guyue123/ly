@@ -1,0 +1,62 @@
+/*
+ * LuoYing is a program used to make 3D RPG game.
+ * Copyright (c) 2014-2016 Huliqing <31703299@qq.com>
+ * 
+ * This file is part of LuoYing.
+ *
+ * LuoYing is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LuoYing is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with LuoYing.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package name.huliqing.editor.tools.terrain;
+
+/**
+ *
+ * @author huliqing
+ */
+public class TexLayer {
+    private String diffuseMap;
+    private String normalMap;
+    private float scale;
+    
+    public TexLayer() {}
+    public TexLayer(String diffuseMap, String normalMap, float scale) {
+        this.diffuseMap = diffuseMap;
+        this.normalMap = normalMap;
+        this.scale = scale;
+    }
+
+    public String getDiffuseMap() {
+        return diffuseMap;
+    }
+
+    public void setDiffuseMap(String diffuseMap) {
+        this.diffuseMap = diffuseMap;
+    }
+
+    public String getNormalMap() {
+        return normalMap;
+    }
+
+    public void setNormalMap(String normalMap) {
+        this.normalMap = normalMap;
+    }
+
+    public float getScale() {
+        return scale;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
+    }
+    
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://editor.huliqing.name'
+    xsi:schemaLocation='http://editor.huliqing.name meta.xsd'>
+    
+    <converter name="SceneEntitiesConverter" value="name.huliqing.editor.converter.field.SceneEntitiesConverter" />
+    
+    <data name="scene" extends="base">
+        <field name="entities" converter="SceneEntitiesConverter" />
+        <field name="progress" converter="DataComponentConverter">
+            <feature name="componentType" value="progress" />
+            <feature name="collapsed" value="true" />
+        </field>
+    </data>
+    
+</root>

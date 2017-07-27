@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://luoying.huliqing.name'
+    xsi:schemaLocation='http://luoying.huliqing.name meta/state.xsd'>
+    
+    <!-- ====================================================================-->
+    <!--状态: 
+    1.状态只对拥有状态的角色产生影响，不对其它目标产生作用。
+    2.状态可以用来临时改变角色的各种属性值或行为
+    3.状态是动态的，会有时间限制,一般在状态结束时应该恢复角色的原始状态。
+    -->
+    <!-- ====================================================================-->
+    
+</root>
+
+
+

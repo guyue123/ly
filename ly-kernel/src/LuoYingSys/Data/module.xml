@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- play group:0, enemyGroup :1 -->
+<root
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://luoying.huliqing.name'
+    xsi:schemaLocation='http://luoying.huliqing.name meta/module.xsd'>
+    
+    <!--==========================================================================-->
+    <!-- 基本配置 -->
+    <!--==========================================================================-->
+    
+   <modulePhysics id="sysModulePhysicsBase" moduleOrder="0" 
+                   angularDamping="0" angularFactor="1" angularSleepingThreshold="1.0" angularVelocity="" applyPhysicsLocal="0" 
+                   ccdMotionThreshold="0" ccdSweptSphereRadius="0" 
+                   collideWithGroups="1" collisionGroup="1" 
+                   friction="0.5" kinematic="0" kinematicSpatial="1"
+                    linearDamping="0" linearFactor="" linearSleepingThreshold="0.8" linearVelocity="" 
+                   mass="0" physicsShape="" restitution="0"
+   />
+
+   <!--==========================================================================-->
+    <!-- 实例配置 -->
+    <!--==========================================================================-->
+   
+   <!-- 普通物理模块 -->    
+    <modulePhysics id="sysModulePhysics" extends="sysModulePhysicsBase" mass="1.0" />
+
+    <!--地形的物理模块-->
+    <modulePhysics id="sysModuleTerrainPhysics" extends="sysModulePhysicsBase" mass="0" physicsShape="sysPhysicsShapeStaticMesh" />
+    
+    <!--静态树的物理模块-->
+    <modulePhysics id="sysModuleTreePhysics" extends="sysModulePhysicsBase" mass="0" />
+
+    <!--包围盒的物理模块-->
+    <modulePhysics id="sysModuleBoundaryPhysics" extends="sysModulePhysicsBase" mass="0" physicsShape="sysPhysicsShapeStaticMesh" />
+    
+    <!-- 树木、花草摇摆控制模块 -->
+    <moduleSway id="sysModuleSway" moduleOrder="999" sway="1" swayDistance="1.0" swayFrequency="1.5" swayGeometries="" swayVariation="1.0" swayWind="0,1" />
+    
+     <!--Lod模块:需要为物体创建LOD网格信息才有意义-->
+    <moduleLod id="sysModuleLod" moduleOrder="999" distTolerance="1.0" trisPerPixel="1.0"/>
+</root>

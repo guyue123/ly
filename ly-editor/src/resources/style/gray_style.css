@@ -1,0 +1,280 @@
+/*https://docs.oracle.com/javase/8/javafx/api/javafx/scene/doc-files/cssref.html*/
+/** 注：pseudo选择器中的":"号之间不能留空格 */
+
+/** for all common HBox and VBox */
+
+.root { 
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+/** 特殊样式，在程序中动态添加到组件中 */
+.hv-box {
+    -fx-base: darkgray;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: darkgray;
+}
+
+/** 左上和左下圆角化 */
+.corner-round-LB {
+    -fx-background-radius: 7 0 0 7;
+}
+/** 右上和右下圆角化 */
+.corner-round-RB {
+    -fx-background-radius: 0 7 7 0;
+}
+
+/** 组件样式 */
+
+.text-field {
+    -fx-base: darkgray;
+    -fx-background-insets: 0;
+    -fx-background-radius: 7;
+    -fx-border-width: 0;
+}
+
+.combo-box {
+    -fx-base: derive(darkgray, 50%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 7;
+}
+.combo-box .list-cell {}
+.combo-box .arrow-button {
+    -fx-background-radius: 0 7 7 0;
+    -fx-pref-height: 25;
+}
+.combo-box .text-input {
+    -fx-border-width: 0;
+    -fx-background-radius: 7 0 0 7;
+}
+
+.choice-box {
+    -fx-base: derive(darkgray, 50%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 7;
+}
+.choice-box .label {}
+.choice-box .arrow {}
+.choice-box .open-button {}
+
+.check-box {
+    -fx-base: derive(darkgray, 50%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 7;
+}
+.check-box .box{
+    -fx-base: derive(darkgray, 50%);
+    -fx-background-insets: 0;
+}
+
+.button {
+    -fx-base: derive(darkgray, 50%);
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 7;
+    -fx-border-width: 0;
+    -fx-pref-height: 25;
+}
+
+.toggle-button {
+    -fx-base: derive(darkgray, 50%);
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 7;
+}
+.toggle-button:selected {
+    -fx-base: derive(darkgray, 20%);
+}
+
+.menu-button {
+    -fx-base: derive(darkgray, 50%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 7;
+}
+
+.menu-bar {
+    -fx-base: darkgray;
+    -fx-background-color: linear-gradient(to bottom, -fx-base, derive(-fx-base,30%));
+    -fx-border-style: solid inside;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: derive(darkgray, -30%);
+}
+
+.tool-bar {
+    -fx-base: darkgray;
+    -fx-background-color: darkgray;
+}
+.tool-bar > .container {
+    -fx-background-color: darkgray;
+}
+.tool-bar .button {
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-padding: 3;
+}
+.tool-bar .toggle-button{
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-padding: 3;
+}
+
+.scroll-pane {
+    -fx-base: darkgray;
+    -fx-background-insets: 0, 0;
+    -fx-background-color:transparent;
+    -fx-background-radius: 7;
+}
+
+.split-pane:horizontal > .split-pane-divider {
+    -fx-base: darkgray;
+    -fx-pref-width: 7;
+}
+.split-pane:vertical > .split-pane-divider {
+    -fx-base: darkgray;
+    -fx-pref-width: 7;
+}
+
+.titled-pane {
+    -fx-base: darkgray;
+    -fx-animated: false;
+    -fx-collapsible: true;
+    -fx-padding:0;
+}
+.titled-pane > .title {
+    -fx-background-color: darkgray;
+    -fx-alignment: CENTER_LEFT;
+}
+.titled-pane:hover{
+    -fx-text-fill: derive(white, -10%);
+}
+
+.titled-pane > .title > .text {
+    -fx-font-size: 12;
+    -fx-font-weight: bold;
+}
+.titled-pane > .title > .arrow-button > .arrow {
+    -fx-background-color: black;
+}
+.titled-pane > .content {
+    -fx-background-color: darkgray;
+    -fx-border-width:0;
+    -fx-padding: 5;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.list-view {
+    -fx-base: darkgray;
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 7;
+    -fx-background-color: derive(darkgray, -20%);
+    -fx-pref-width:200;
+}
+.list-view .list-cell {
+    -fx-background-radius: 7;
+    -fx-background-color:derive(darkgray, -20%);
+    -fx-text-fill: derive(black, 10%);
+}
+.list-view .list-cell:empty {
+    -fx-opacity: 0;
+}
+.list-view .list-cell:hover {
+    -fx-background-color: derive(darkblue, 100%);
+    -fx-text-fill: derive(white, -10%);
+}
+/** 不要这个样式:这会造成在有鼠标拖动行为的时候，鼠标按下并拖出list-cell之后该样式仍然不会消息的BUG */
+/*.list-view .list-cell:pressed {
+    -fx-background-color: derive(darkblue, 80%);
+    -fx-text-fill: derive(white, -10%);
+}*/
+.list-view .list-cell:selected {
+    -fx-background-color: derive(darkblue, 80%);
+    -fx-text-fill: derive(white, -10%);
+}
+
+.table-view {
+    -fx-base: darkgray;
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 7;
+    -fx-background-color:derive(darkgray, -20%);
+    /*-fx-padding: 0;*/
+}
+.table-view .column-header-background{
+    -fx-base: darkgray;
+    -fx-background-radius: 7 7 0 0;
+}
+.table-view .column-header {
+    -fx-base: darkgray;
+    -fx-background-radius: 7 7 0 0;
+}
+.table-view .table-cell{
+    -fx-base: darkgray;
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 7;
+}
+.table-row-cell {
+    -fx-base: darkgray;
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 7;
+    -fx-background-color:derive(darkgray, -20%);
+    -fx-text-fill: derive(black, 10%);
+}
+.table-row-cell:hover {
+    -fx-background-color: derive(darkblue, 100%);
+    -fx-text-fill: derive(white, -10%);
+}
+.table-row-cell:pressed {
+    -fx-background-color: derive(darkblue, 80%);
+    -fx-text-fill: derive(white, -10%);
+}
+.table-row-cell:selected {
+    -fx-background-color: derive(darkblue, 80%);
+    -fx-text-fill: derive(white, -10%);
+}
+
+/** 去掉TreeView在失去焦点时的灰色边框 */
+.tree-view {
+    -fx-base: darkgray;
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 7;
+    -fx-background-color:derive(darkgray, -20%);
+}
+.tree-cell {
+    -fx-base: darkgray;
+    -fx-background-radius: 7;
+    -fx-background-color:derive(darkgray, -20%);
+    -fx-text-fill: derive(black, 10%);
+}
+.tree-cell:hover {
+    -fx-base: darkgray;
+    -fx-background-radius: 7;
+    -fx-background-color: derive(darkblue, 100%);
+    -fx-text-fill: derive(white, -10%);
+}
+.tree-cell:pressed {
+    -fx-base: darkgray;
+    -fx-background-radius: 7;
+    -fx-background-color: derive(darkblue, 80%);
+    -fx-text-fill: derive(white, -10%);
+}
+.tree-cell:selected {
+    -fx-base: darkgray;
+    -fx-background-radius: 7;
+    -fx-background-color: derive(darkblue, 80%);
+    -fx-text-fill: derive(white, -10%);
+}
+
+/* color-picker */
+.color-picker {
+    -fx-base: derive(darkgray, 50%);
+    -fx-background-radius: 7;
+    -fx-background-insets: 0;
+}
+
+/** 状态栏样式 */
+.statusBar {
+    -fx-base: darkgray;
+    -fx-background-color: darkgray;
+    -fx-border-style: solid inside;
+    -fx-border-width: 1 0 0 0; 
+    -fx-border-color: derive(darkgray, -30%);
+}
+
+

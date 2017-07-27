@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://luoying.huliqing.name'
+    xsi:schemaLocation='http://luoying.huliqing.name meta/sound.xsd'>
+    
+    <!-- 
+    非常重要：将声音文件转换为ogg时，工程采样率不能低于44100， 否则可能在游戏中无法播放，导致画面直接卡死。 
+    -->
+    
+    <!--==========================================================================-->
+    <!--音效配置-->
+    <!--==========================================================================-->
+    
+    <sound id="sound" file="" direction="0,0,1" directional="0" positional="1" innerAngle="45" outerAngle="90" 
+           looping="1" maxDistance="200" pitch="1.0" refDistance="10" reverbEnabled="0" timeOffset="0" 
+           type="Buffer" velocity="0,0,0" velocityFromTranslation="0" volume="1.0" />
+    
+</root>
+
+
+

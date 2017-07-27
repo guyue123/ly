@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root 
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://luoying.huliqing.name'
+    xsi:schemaLocation='http://luoying.huliqing.name meta/anim.xsd' >
+    
+    <!--==========================================================================-->
+    <!-- 动画配置 -->
+    <!--==========================================================================-->
+    <animMove id="animMove"  useTime="1" startPos="0,0,0" endPos="5,5,5" facing="0" />
+    <animRotation id="animRotation" loop="loop" axis="0,1,0" degree="360" />
+    <animScale id="animScale" startScale="1,1,1" endScale="2,2,2" />
+    <animRandomRotation id="animRandomRotation" minDegree="0" maxDegree="360" />
+    <animColor id="animColor" startColor="0,0,0,0" endColor="1,1,1,1" />
+
+</root>
+
+
+

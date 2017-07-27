@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+skinType => 0:body; 1:armor 
+skinPart => 0:ear;1:eyeL;2:eyeR;3:face;4:foot;5:hair;6:hand;7:lowerBody;8:upperBody; 
+-->
+
+<root
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://luoying.huliqing.name'
+    xsi:schemaLocation='http://luoying.huliqing.name meta/skin.xsd'>
+    
+    <!-- =========================================================================-->
+    <!--装备、皮肤配置->
+    <!-- =========================================================================-->
+
+</root>
