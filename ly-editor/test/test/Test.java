@@ -19,6 +19,9 @@
  */
 package test;
 
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+
 /**
  *
  * @author huliqing
@@ -26,5 +29,22 @@ package test;
 public class Test {
     
     public static void main(String[] args) {
+/*    	startPickLoc:(679.20575, 22.333984, 651.58655)
+    	endPickLoc:(465.3236, 22.333862, 707.4158)
+    	startSpatialLocation:(526.39923, 22.334003, 491.9757)*/
+    	
+    	
+    	Vector3f v3f1 = new Vector3f(679.20575f, 425.333984f,  651.58655f);
+    	Vector3f v3f2 = new Vector3f(665.3236f, 66.333862f, 757.4158f);
+    	Vector3f v3f3 = new Vector3f(526.39923f, 22.334003f, 491.9757f);
+    	
+    	Quaternion transforme = new Quaternion();
+    	Vector3f v1 = transforme.mult(v3f1.subtract(v3f3).normalize());
+    	Vector3f v2 = transforme.mult(v3f2.subtract(v3f3).normalize());
+    	
+/*    	Vector3f v1 = v3f1.subtract(v3f3);
+    	Vector3f v2 = v3f2.subtract(v3f3);*/
+    	
+    	System.out.println(v1.angleBetween(v2));
     }
 }

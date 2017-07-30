@@ -52,6 +52,11 @@ public class Picker {
     private Vector3f startPickLoc;
     private Vector3f endPickLoc;
     
+    // 2017/07/29
+    private Camera cam;
+    private Vector2f mouseLoc;
+    private Quaternion planeRotation;
+    
     public Picker() {
         float size = 10000;
         Geometry g = new Geometry("plane", new Quad(size, size));
@@ -62,11 +67,13 @@ public class Picker {
     public void startPick(Spatial selectedSpatial, Mode mode, Camera cam, Vector2f mouseLoc, Quaternion planeRotation) {
         this.selectedSpatial = selectedSpatial;
         this.mode = mode;
+        this.cam = cam;
+        this.planeRotation = planeRotation;
+        this.mouseLoc = mouseLoc;
         
         startSpatialLocation = ModelManager.getInstance().getTranslation(selectedSpatial);//selectedSpatial.getWorldTranslation().clone();
         setTransformation(planeRotation, cam);
         plane.setLocalTranslation(startSpatialLocation);
-        
         startPickLoc = PickManager.pickPoint(cam, mouseLoc, plane);
     }
     
@@ -146,6 +153,14 @@ public class Picker {
      */
     public Quaternion getRotation(Quaternion transforme) {
         Vector3f v1, v2;
+        
+        // 只绕Y轴旋转
+        startPickLoc.setY(startSpatialLocation.getY());
+        endPickLoc.setY(startSpatialLocation.getY());
+        
+        System.out.println("startPickLoc:" + startPickLoc);
+        System.out.println("endPickLoc:" + endPickLoc);
+        
         v1 = transforme.mult(startPickLoc.subtract(startSpatialLocation).normalize());
         v2 = transforme.mult(endPickLoc.subtract(startSpatialLocation).normalize());
         Vector3f axis = v1.cross(v2);
@@ -169,10 +184,33 @@ public class Picker {
      */
     public float getAngle() {
         Vector3f v1, v2;
-        v1 = startPickLoc.subtract(startSpatialLocation);
-        v2 = endPickLoc.subtract(startSpatialLocation);
+        
+        Quaternion transforme = new Quaternion();
+        v1 = transforme.mult(startPickLoc.subtract(startSpatialLocation).normalize());
+        v2 = transforme.mult(endPickLoc.subtract(startSpatialLocation).normalize());
         return v1.angleBetween(v2);
     }
+    
+    /**
+    *
+    * @return the angle between the start location and the final location
+    */
+   public float getAngle2f() {
+       Vector3f v1, v2;
+       
+       // 只绕Y轴旋转
+       startPickLoc.setY(startSpatialLocation.getY());
+       endPickLoc.setY(startSpatialLocation.getY());
+       
+       v1 = startPickLoc.subtract(startSpatialLocation).normalize();
+       v2 = endPickLoc.subtract(startSpatialLocation).normalize();
+       
+       Vector2f v3, v4;
+       v3 = new Vector2f(v1.getX(), v1.getZ());
+       v4 = new Vector2f(v2.getX(), v2.getZ());
+       
+       return v3.angleBetween(v4);
+   }
     
     /**
      * @return the vector from the tool origin to the final location, in
@@ -180,5 +218,14 @@ public class Picker {
      */
     public Vector3f getFinalOffset() {
         return endPickLoc.subtract(startSpatialLocation);
+    }
+    
+    
+    public void reset() {
+        startSpatialLocation = ModelManager.getInstance().getTranslation(selectedSpatial);//selectedSpatial.getWorldTranslation().clone();
+        setTransformation(planeRotation, cam);
+        plane.setLocalTranslation(startSpatialLocation);
+        
+        startPickLoc = PickManager.pickPoint(cam, mouseLoc, plane);
     }
 }

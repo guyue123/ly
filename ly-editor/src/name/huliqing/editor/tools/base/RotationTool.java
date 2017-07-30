@@ -24,24 +24,24 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.util.TempVars;
 
-import name.huliqing.editor.utils.Picker;
+import name.huliqing.editor.edit.Mode;
+import name.huliqing.editor.edit.SimpleEditListener;
+import name.huliqing.editor.edit.SimpleJmeEdit;
+import name.huliqing.editor.edit.UndoRedo;
+import name.huliqing.editor.edit.controls.ControlTile;
 import name.huliqing.editor.events.Event;
 import name.huliqing.editor.events.JmeEvent;
-import name.huliqing.editor.edit.Mode;
-import name.huliqing.editor.edit.SimpleJmeEdit;
 import name.huliqing.editor.tiles.AxisNode;
 import name.huliqing.editor.tiles.RotationControlObj;
-import name.huliqing.editor.edit.UndoRedo;
-import name.huliqing.luoying.manager.ModelManager;
-import name.huliqing.luoying.manager.PickManager;
-import name.huliqing.editor.edit.controls.ControlTile;
 import name.huliqing.editor.toolbar.EditToolbar;
-import name.huliqing.editor.edit.SimpleEditListener;
 import name.huliqing.editor.tools.AbstractTool;
 import name.huliqing.editor.tools.ToggleTool;
+import name.huliqing.editor.utils.Picker;
+import name.huliqing.luoying.manager.ModelManager;
+import name.huliqing.luoying.manager.PickManager;
 
 /**
  * 旋转编辑工具
@@ -84,6 +84,8 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
     // 2017/07/26 旋转轴不在物体中心时，旋转导致物体位置变化。物体的位置(local)
     private Vector3f startSpatialLoc;
     private Vector3f lastSpatialLoc;
+    // 旋转中心
+    private Vector3f rotateCenter;
 
     public RotationTool(String name, String tips, String icon) {
         super(name, tips, icon);
@@ -105,7 +107,7 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
     public void cleanup() {
         endRotation();
         controlObj.removeFromParent();
-        edit.removeListener(this);
+        edit.addListener(this);
         super.cleanup(); 
     }
 
@@ -200,13 +202,15 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         axisRotation = false;
         picker.startPick(selectObj.getControlSpatial(), Mode.CAMERA
                 , editor.getCamera(), editor.getInputManager().getCursorPosition(), Picker.PLANE_XY);
-        startRotate = cloneSelectedObj().getLocalRotation().clone();
-        startWorldRotate = cloneSelectedObj().getWorldRotation().clone();
+        startRotate = selectedSpatial().getLocalRotation().clone();
+        startWorldRotate = selectedSpatial().getWorldRotation().clone();
         controlObj.setAxisVisible(false);
         controlObj.setAxisLineVisible(false);
         
         startSpatialLoc = selectObj.getControlSpatial().getLocalTranslation().clone();
         lastSpatialLoc = new Vector3f(startSpatialLoc);
+        
+        rotateCenter = ModelManager.getInstance().getTranslation(selectObj.getControlSpatial());
     }
 
     private void startAxisRotation(AxisNode axis) {
@@ -236,31 +240,25 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
             default:
                 throw new UnsupportedOperationException();
         }
-        
-  /*      System.out.println(selectObj.getControlSpatial().getWorldRotation());
-        System.out.println(selectObj.getControlSpatial().getLocalTranslation());
-        Spatial cloneSelectObj = selectObj.getControlSpatial().clone();
-        cloneSelectObj.setLocalTranslation(ModelManager.getInstance().getTranslation(cloneSelectObj));
-        System.out.println(cloneSelectObj.getWorldRotation());
-        System.out.println(cloneSelectObj.getLocalTranslation());*/
-        
+       
         picker.startPick(selectObj.getControlSpatial(), edit.getMode()
                 , editor.getCamera(), editor.getInputManager().getCursorPosition()
                 ,planRotation);
-        startRotate = cloneSelectedObj().getLocalRotation().clone();
-        startWorldRotate = cloneSelectedObj().getWorldRotation().clone();
+        startRotate = selectedSpatial().getLocalRotation().clone();
+        startWorldRotate = selectedSpatial().getWorldRotation().clone();
         controlObj.setAxisVisible(false);
         controlObj.setAxisLineVisible(false);
         axis.setAxisLineVisible(true);
         
         startSpatialLoc = selectObj.getControlSpatial().getLocalTranslation().clone();
         lastSpatialLoc = new Vector3f(startSpatialLoc);
+        rotateCenter = ModelManager.getInstance().getTranslation(selectObj.getControlSpatial());
 //            LOG.log(Level.INFO, "StartSpatialLoc={0}", startSpatialLoc);
     }
     
-    private Spatial cloneSelectedObj() {
-        Spatial cloneSelectObj = selectObj.getControlSpatial().clone();
-        cloneSelectObj.setLocalTranslation(ModelManager.getInstance().getTranslation(cloneSelectObj));
+    private Spatial selectedSpatial() {
+        Spatial cloneSelectObj = selectObj.getControlSpatial();
+        //cloneSelectObj.setLocalTranslation(ModelManager.getInstance().getTranslation(cloneSelectObj));
         
         return cloneSelectObj;
     }
@@ -278,6 +276,7 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         freeRotation = false;
         axisRotation = false;
         rotationAxis = null;
+        rotateCenter = null;
         controlObj.setAxisVisible(true);
         controlObj.setAxisLineVisible(false);
     }
@@ -308,17 +307,45 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         if (!picker.updatePick(editor.getCamera(), editor.getInputManager().getCursorPosition())) {
             return;
         }
-
-        Quaternion rotation = startRotate.mult(picker.getRotation(startWorldRotate.inverse()));
-        System.out.println(startRotate);
-        System.out.println(startWorldRotate);
-        System.out.println("-------------------");
-        controlObj.setLocalTranslation(ModelManager.getInstance().getTranslation(selectObj.getControlSpatial()));
-        selectObj.setLocalRotation(rotation);
-        afterRotate = rotation;
         
+        float angle = picker.getAngle2f();
+        System.out.println("-------------------------------");
+        System.out.println("angle:" + (angle * 180 / FastMath.PI));
+        if (FastMath.abs(angle * 180 / FastMath.PI) < 5) {
+        	return;
+        }
+        
+        Quaternion rotation = startRotate.mult(picker.getRotation(startWorldRotate.inverse()));
+        controlObj.setLocalTranslation(rotateCenter);
+        
+        //Create the node to use as pivot
+        Spatial cloneSpatial = selectObj.getControlSpatial().clone();
+        // 新模型中心坐标
+        Vector3f modelCenter = rotateCenter.subtract(cloneSpatial.getWorldTranslation());
+        
+        //Create the node to use as pivot
+        Node newPivot = new Node();
+        newPivot.setLocalTranslation(modelCenter);
+        newPivot.attachChild(cloneSpatial);
+        
+        //Reverse the pivot to match the center of the mesh
+        cloneSpatial.setLocalTranslation(modelCenter.negate());
+        // 正向旋转
+        newPivot.rotate(rotation);
+        // 设置原中心为坐标
+        newPivot.setLocalTranslation(rotateCenter);
+        
+/*        edit.getEditRoot().getParent().attachChild(newPivot);
+        newPivot.setCullHint(CullHint.Dynamic);*/
+
+        selectedSpatial().rotate(rotation);
+        selectObj.setLocalRotation(selectedSpatial().getLocalRotation());
+        // 转换成原世界坐标
+        selectObj.setLocalTranslation(cloneSpatial.getWorldTranslation());
+        
+        afterRotate = rotation;
         // 2017/07/26 旋转轴不在中心
-        TempVars tv = TempVars.get();
+/*        TempVars tv = TempVars.get();
         Vector3f diff;
         Vector3f diff1;
         Vector3f diff3;
@@ -345,7 +372,7 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         Vector3f finalLocalPos = new Vector3f(startSpatialLoc).addLocal(megediff);
         selectObj.setLocalTranslation(finalLocalPos);
         controlObj.setLocalTranslation(ModelManager.getInstance().getTranslation(selectObj.getControlSpatial()));
-        lastSpatialLoc.set(finalLocalPos);
+        lastSpatialLoc.set(finalLocalPos);*/
     }
     
     @Override

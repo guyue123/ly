@@ -1,8 +1,5 @@
-import com.jme3.bounding.BoundingBox;
 import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.shape.Cylinder;
+import com.jme3.math.Vector2f;
 
 /*
  * LuoYing is a program used to make 3D RPG game.
@@ -31,12 +28,32 @@ import com.jme3.scene.shape.Cylinder;
  */
 public class Test {
     
-    public static void main(String[] args) {	 	
-        Vector3f v1 = new Vector3f(0, 1, 0);
-        Quaternion roll180 = new Quaternion();
-        roll180.fromAngleAxis(FastMath.PI/2, new Vector3f(1, 0, 0));
+    public static void main(String[] args) {
+    	Vector2f v1 = new Vector2f(-1, -1);
+    	System.out.println(rotate(FastMath.PI/4, true).angleBetween(v1) * 180/FastMath.PI);
+    	System.out.println(rotate(FastMath.PI/2 + FastMath.PI/6, false).angleBetween(v1) * 180/FastMath.PI);
+    	
+    	
+    	
+    	Vector2f V3 = new Vector2f(0.80266863f, -0.59642506f);
+    	Vector2f V4 = new Vector2f(-0.19634892f, 0.98053414f);
+    	System.out.println(V3.angleBetween(V4) * 180/FastMath.PI);
         
-        
-        //System.out.println(axis);
+        // 旋转30
+/*        System.out.println(rotate(FastMath.PI/6, true));
+        System.out.println(rotate(FastMath.PI/4, true));
+        System.out.println(rotate(FastMath.PI/3, true));
+        System.out.println(rotate(FastMath.PI/2, true));
+        System.out.println(rotate(FastMath.PI/1, true));
+        System.out.println(rotate(FastMath.PI + FastMath.PI/6 , true));
+        System.out.println(rotate(FastMath.PI + FastMath.PI/4 , true));
+        System.out.println(rotate(FastMath.PI + FastMath.PI/3 , true));
+        System.out.println(rotate(FastMath.PI + FastMath.PI/2 , true));*/
+    }
+    
+    public static Vector2f rotate(float angle, boolean cw) {
+    	Vector2f v1 = new Vector2f(-1, -1);
+    	v1.rotateAroundOrigin(angle, cw);
+    	return v1;
     }
 }

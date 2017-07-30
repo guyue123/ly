@@ -126,7 +126,7 @@ public abstract class AbstractEntity implements Entity {
             
             // 2017/07/27 重置模型中心位置
             if (originSpatialWorldTranslation !=null && !location.equals(originSpatialWorldTranslation)) {
-            	this.setOriginInfo(spatial);
+            	this.originSpatialWorldTranslation = location.clone();
             }
         }
         Quaternion rotation = data.getRotation();
@@ -140,9 +140,7 @@ public abstract class AbstractEntity implements Entity {
             // 2017/07/27 重置模型中心位置
             if (originSpatialCenter !=null && !scale.equals(originSpatialScale)) {
             	Vector3f oldV3f = originSpatialCenter.mult(originSpatialScale);
-            	Vector3f newV3f = ModelManager.getInstance().getModelCenter(spatial).mult(spatial.getLocalScale());
-            	System.out.println("oldV3f:" + oldV3f);
-            	System.out.println("newV3f:" + newV3f);
+            	Vector3f newV3f = ModelManager.getInstance().getModelCenter(spatial);
             	spatial.setLocalTranslation(spatial.getLocalTranslation().add(oldV3f).subtract(newV3f));
             }
         }
@@ -185,7 +183,7 @@ public abstract class AbstractEntity implements Entity {
     		return;
     	}
     	
-    	this.originSpatialCenter = ModelManager.getInstance().getModelCenter(OriginSpatial).clone();
+    	this.originSpatialCenter = ModelManager.getInstance().getTranslation(OriginSpatial).clone();
     	this.originSpatialScale = OriginSpatial.getLocalScale().clone();
     	this.originSpatialWorldTranslation = OriginSpatial.getWorldTranslation().clone();
     }

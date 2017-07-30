@@ -154,7 +154,12 @@ public class ModelManager {
    */
   public Vector3f getModelCenter(Spatial sp) {
 	  if (sp instanceof Node) {
-		  return getModelCenter((Node)sp);
+		  Vector3f c = getModelCenter((Node)sp);
+		  if (c == null) {
+			  return null;
+		  }
+		  
+		  return c.mult(sp.getLocalScale());
 	  }
 	  
 	  return null;
@@ -189,6 +194,8 @@ public class ModelManager {
 		  return sp.getWorldTranslation().clone();
 	  }
 	  
-	  return sp.getWorldTranslation().clone().add(v3f.mult(sp.getLocalScale()));
+	  Vector3f center = sp.getWorldTranslation().clone().add(sp.getLocalRotation().mult(v3f));
+	  System.out.println("center:" + center);
+	  return center;
   }
 }
