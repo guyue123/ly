@@ -158,9 +158,6 @@ public class Picker {
         startPickLoc.setY(startSpatialLocation.getY());
         endPickLoc.setY(startSpatialLocation.getY());
         
-        System.out.println("startPickLoc:" + startPickLoc);
-        System.out.println("endPickLoc:" + endPickLoc);
-        
         v1 = transforme.mult(startPickLoc.subtract(startSpatialLocation).normalize());
         v2 = transforme.mult(endPickLoc.subtract(startSpatialLocation).normalize());
         Vector3f axis = v1.cross(v2);

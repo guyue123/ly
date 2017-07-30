@@ -69,13 +69,13 @@ public class AssetLoader {
     	LuoYing.getAssetManager().clearCache();
     	Spatial sp = LuoYing.getAssetManager().loadModel(file);
     	
-    	if (sp instanceof Node) {
+/*    	if (sp instanceof Node) {
     		Vector3f v3f = ModelManager.getInstance().getSize(sp);
     		System.out.println(v3f);
     		
     		Vector3f v3f2 = ModelManager.getInstance().getModelCenter(sp);
     		System.out.println(v3f2);
-    	}
+    	}*/
     	
     	if (locatorPath != null) {
     		LuoYing.getAssetManager().unregisterLocator(locatorPath, locatorClass);

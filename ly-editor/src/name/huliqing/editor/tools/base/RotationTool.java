@@ -20,12 +20,12 @@
 package name.huliqing.editor.tools.base;
 
 import com.jme3.input.KeyInput;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.Spatial.CullHint;
 
 import name.huliqing.editor.edit.Mode;
 import name.huliqing.editor.edit.SimpleEditListener;
@@ -86,6 +86,10 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
     private Vector3f lastSpatialLoc;
     // 旋转中心
     private Vector3f rotateCenter;
+    
+    private Vector3f afterTranlation;
+    
+    private Node newPivot;
 
     public RotationTool(String name, String tips, String icon) {
         super(name, tips, icon);
@@ -268,6 +272,20 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
             picker.endPick();
             edit.addUndoRedo(new RotationUndoRedo(selectObj, startRotate, afterRotate, startSpatialLoc, lastSpatialLoc));
             edit.setModified(true);
+            
+            if (afterRotate != null) {
+            	selectedSpatial().rotate(afterRotate);
+            }
+            selectObj.setLocalRotation(selectedSpatial().getLocalRotation());
+            // 转换成原世界坐标
+            if (afterTranlation != null) {
+            	selectObj.setLocalTranslation(afterTranlation);
+            }
+            
+            if (newPivot != null) {
+            	newPivot.removeFromParent();
+            	newPivot = null;
+            }
         }
         
         startSpatialLoc = null;
@@ -277,6 +295,7 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         axisRotation = false;
         rotationAxis = null;
         rotateCenter = null;
+        afterTranlation = null;
         controlObj.setAxisVisible(true);
         controlObj.setAxisLineVisible(false);
     }
@@ -308,13 +327,6 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
             return;
         }
         
-        float angle = picker.getAngle2f();
-        System.out.println("-------------------------------");
-        System.out.println("angle:" + (angle * 180 / FastMath.PI));
-        if (FastMath.abs(angle * 180 / FastMath.PI) < 5) {
-        	return;
-        }
-        
         Quaternion rotation = startRotate.mult(picker.getRotation(startWorldRotate.inverse()));
         controlObj.setLocalTranslation(rotateCenter);
         
@@ -324,7 +336,12 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         Vector3f modelCenter = rotateCenter.subtract(cloneSpatial.getWorldTranslation());
         
         //Create the node to use as pivot
-        Node newPivot = new Node();
+        if (newPivot != null) {
+        	newPivot.removeFromParent();
+        	newPivot = null;
+        }
+        
+        newPivot = new Node();
         newPivot.setLocalTranslation(modelCenter);
         newPivot.attachChild(cloneSpatial);
         
@@ -335,44 +352,15 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         // 设置原中心为坐标
         newPivot.setLocalTranslation(rotateCenter);
         
-/*        edit.getEditRoot().getParent().attachChild(newPivot);
-        newPivot.setCullHint(CullHint.Dynamic);*/
-
-        selectedSpatial().rotate(rotation);
+        edit.getEditRoot().getParent().attachChild(newPivot);
+        newPivot.setCullHint(CullHint.Dynamic);
+        
+/*        selectedSpatial().rotate(rotation);
         selectObj.setLocalRotation(selectedSpatial().getLocalRotation());
         // 转换成原世界坐标
-        selectObj.setLocalTranslation(cloneSpatial.getWorldTranslation());
-        
+        selectObj.setLocalTranslation(cloneSpatial.getWorldTranslation());*/
+        afterTranlation = cloneSpatial.getWorldTranslation();
         afterRotate = rotation;
-        // 2017/07/26 旋转轴不在中心
-/*        TempVars tv = TempVars.get();
-        Vector3f diff;
-        Vector3f diff1;
-        Vector3f diff3;
-        if (freeRotation) {
-            diff = picker.getTranslation();
-            diff1 = picker.getTranslation();
-            diff3 = picker.getTranslation();
-        } else {
-            diff = picker.getTranslation(rotationAxis.getDirection(tv.vect2));
-
-            diff1 = picker.getTranslation(new Vector3f(1, 0, 0));
-            diff3 = picker.getTranslation(new Vector3f(0, 0, 1));
-        }
-        
-        Vector3f megediff = diff;//diff.add(diff1).add(diff3);
-        
-        Spatial parent = selectObj.getControlSpatial().getParent();
-        if (parent != null) {
-            tv.quat1.set(parent.getWorldRotation()).inverseLocal().mult(megediff, megediff);
-            diff.divideLocal(parent.getWorldScale());
-        }
-        tv.release();
-        
-        Vector3f finalLocalPos = new Vector3f(startSpatialLoc).addLocal(megediff);
-        selectObj.setLocalTranslation(finalLocalPos);
-        controlObj.setLocalTranslation(ModelManager.getInstance().getTranslation(selectObj.getControlSpatial()));
-        lastSpatialLoc.set(finalLocalPos);*/
     }
     
     @Override

@@ -195,7 +195,6 @@ public class ModelManager {
 	  }
 	  
 	  Vector3f center = sp.getWorldTranslation().clone().add(sp.getLocalRotation().mult(v3f));
-	  System.out.println("center:" + center);
 	  return center;
   }
 }
