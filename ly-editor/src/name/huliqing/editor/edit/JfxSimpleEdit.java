@@ -31,6 +31,7 @@ import javafx.scene.layout.StackPane;
 import name.huliqing.editor.constants.StyleConstants;
 import name.huliqing.editor.toolbar.Toolbar;
 import name.huliqing.fxswing.Jfx;
+import name.huliqing.editor.ui.ResourceZone;
 import name.huliqing.editor.ui.toolbar.JfxToolbar;
 import name.huliqing.editor.ui.toolbar.JfxToolbarFactory;
 
@@ -52,6 +53,9 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
     protected final HBox jfxToolbarPanel = new HBox();
     protected final JfxExtToolbar jfxExtToolbarPanel = new JfxExtToolbar();
     
+    /** 资源区 */
+    public final static ResourceZone resourceZone = new ResourceZone();
+    
     // --
     protected JfxToolbar jfxToolbar;
     protected final List<JfxToolbar> jfxExtToolbars = new ArrayList();
@@ -60,6 +64,7 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
         layout.setLeft(propertyZone);
         layout.setCenter(bodyZone);
         //layout.setRight(jfxExtToolbarPanel);
+        layout.setRight(resourceZone);
         layout.setBottom(jfxToolbarPanel);
         layout.setBackground(Background.EMPTY);
         
@@ -80,6 +85,10 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
 /*        jfxExtToolbarPanel.managedProperty().bind(jfxExtToolbarPanel.visibleProperty());
         jfxExtToolbarPanel.setVisible(false);
         jfxExtToolbarPanel.setPadding(Insets.EMPTY);*/
+        
+      //  resourceZone.managedProperty().bind(jfxExtToolbarPanel.visibleProperty());
+        resourceZone.setVisible(true);
+        resourceZone.setPadding(Insets.EMPTY);
     }
     
     @Override

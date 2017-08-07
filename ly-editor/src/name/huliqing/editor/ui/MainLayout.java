@@ -40,9 +40,9 @@ public class MainLayout extends VBox {
     private Region resourceZone;
     // 编辑区
     private Region editZone;
-    // 文本区
+    // 文本区(2017/08/07 删除)
     private Region textZone;
-    // 状态栏
+    // 状态栏(2017/08/07 删除)
     private Region statusBar;
     
     // 根节点面板
