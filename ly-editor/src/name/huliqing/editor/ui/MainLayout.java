@@ -35,15 +35,15 @@ import name.huliqing.fxswing.Jfx;
 public class MainLayout extends VBox {
     
     // 菜单区
-    private Region menuZone;
+   // private Region menuZone;
     // 资源区
     private Region resourceZone;
     // 编辑区
     private Region editZone;
     // 文本区(2017/08/07 删除)
-    private Region textZone;
+    //private Region textZone;
     // 状态栏(2017/08/07 删除)
-    private Region statusBar;
+    //private Region statusBar;
     
     // 根节点面板
     private final Pane root;
@@ -74,42 +74,42 @@ public class MainLayout extends VBox {
      * @param textZone
      */
     public void setZones(Region menuBar, Region resourceZone, Region editZone, Region statusBar, Region textZone) {
-        this.menuZone = menuBar;
+      //  this.menuZone = menuBar;
         this.resourceZone = resourceZone; 
         this.editZone = editZone;
-        this.statusBar = statusBar;
-        this.textZone = textZone;
+        //this.statusBar = statusBar;
+        //this.textZone = textZone;
         buildLayout();
     }
     
     public void setTextZoneVisible(boolean visible) {
-        if (visible) {
+/*        if (visible) {
             if (!sp2.getItems().contains(textZone)) {
                 sp2.getItems().add(textZone);
                 sp2.setDividerPositions(lastDividerPositions);
             }
         } else {
             sp2.getItems().remove(textZone);
-        }
+        }*/
     }
     
     private void buildLayout() {
         getChildren().clear();
         contentMainSp.getItems().clear();
         
-        getChildren().addAll(menuZone, contentMainSp, statusBar);
+        getChildren().addAll(contentMainSp);
         contentMainSp.getItems().addAll(sp2, resourceZone);
         sp2.getItems().addAll(editZone);
         sp2.setOrientation(Orientation.VERTICAL);
-        SplitPane.setResizableWithParent(textZone, Boolean.FALSE);
+       // SplitPane.setResizableWithParent(textZone, Boolean.FALSE);
         
         // -- zone size
         prefHeightProperty().bind(root.heightProperty());
         prefWidthProperty().bind(root.widthProperty());
-        contentMainSp.prefHeightProperty().bind(heightProperty().subtract(menuZone.heightProperty()).subtract(statusBar.heightProperty()));
+        contentMainSp.prefHeightProperty().bind(heightProperty());
         resourceZone.prefHeightProperty().bind(contentMainSp.heightProperty());
         editZone.prefHeightProperty().bind(contentMainSp.heightProperty());
-        statusBar.prefWidthProperty().bind(widthProperty());
+        //statusBar.prefWidthProperty().bind(widthProperty());
         
         // remove20170107,起到效果，原因不明，可能和JFXPanel与Swing的整合有关。必须使用下面的特殊方式处理:
 //        contentZone.setDividerPositions(0.2f);

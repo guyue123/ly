@@ -87,7 +87,7 @@ public class CameraTool extends AbstractTool implements EditorListener, ToggleTo
 //    private final float defFocusDistance = 2f;
     
     // 视角及提示
-    private final BitmapText viewText = new BitmapText(Manager.getFont());
+    //private final BitmapText viewText = new BitmapText(Manager.getFont());
     private View view;
     private boolean ortho;
 
@@ -95,10 +95,10 @@ public class CameraTool extends AbstractTool implements EditorListener, ToggleTo
         super(name, tips, icon);
         LCtrEvent = bindEvent("LCtrPressedEvent").bindKey(KeyInput.KEY_LCONTROL, true);
         RCtrEvent = bindEvent("RCtrPressedEvent").bindKey(KeyInput.KEY_RCONTROL, true);
-        viewText.setSize(Manager.FONT_SIZE);
+/*        viewText.setSize(Manager.FONT_SIZE);
         viewText.setColor(new ColorRGBA(0.9f, 0.9f, 0.9f, 1));
         viewText.setAlignment(BitmapFont.Align.Left);
-        viewText.setVerticalAlignment(BitmapFont.VAlign.Top);
+        viewText.setVerticalAlignment(BitmapFont.VAlign.Top);*/
     }
 
     @Override
@@ -107,7 +107,7 @@ public class CameraTool extends AbstractTool implements EditorListener, ToggleTo
         editorCam = new BestEditCamera(editor.getCamera(), editor.getInputManager());
         view = editorCam.getView();
         updateViewText();
-        editor.getGuiNode().attachChild(viewText);
+        //editor.getGuiNode().attachChild(viewText);
         editor.addListener(this);
     }
 
@@ -115,7 +115,7 @@ public class CameraTool extends AbstractTool implements EditorListener, ToggleTo
     public void cleanup() {
         editor.removeListener(this);
         editorCam.cleanup();
-        viewText.removeFromParent();
+        //viewText.removeFromParent();
         super.cleanup(); 
     }
     
@@ -363,13 +363,13 @@ public class CameraTool extends AbstractTool implements EditorListener, ToggleTo
             default:
                 break;
         }
-        String orthoKey = editorCam.getCamera().isParallelProjection() ? ResConstants.VIEW_ORTHO : ResConstants.VIEW_PERSP;
-        ResManager resManager = Manager.getResManager();
-        String viewTextStr = resManager.get(textKey) + " " + resManager.get(orthoKey);
-        viewText.setText(viewTextStr);
-        float x = editorCam.getCamera().getWidth() - viewText.getLineWidth() - 10;
-        float y = editorCam.getCamera().getHeight() - 10;
-        viewText.setLocalTranslation(x, y, 0);
+       // String orthoKey = editorCam.getCamera().isParallelProjection() ? ResConstants.VIEW_ORTHO : ResConstants.VIEW_PERSP;
+       // ResManager resManager = Manager.getResManager();
+      //  String viewTextStr = resManager.get(textKey) + " " + resManager.get(orthoKey);
+      //  viewText.setText(viewTextStr);
+    //    float x = editorCam.getCamera().getWidth() - viewText.getLineWidth() - 10;
+     //   float y = editorCam.getCamera().getHeight() - 10;
+      //  viewText.setLocalTranslation(x, y, 0);
     }
 
     @Override

@@ -30,17 +30,18 @@ import name.huliqing.editor.manager.Manager;
  *
  * @author huliqing
  */
-public class ResourceZone extends VBox{
+public class ComponentZone extends VBox{
     
-    private final TitledPane assetsPanel = new TitledPane();
+    private final TitledPane componentsPanel = new TitledPane();
     
-    public ResourceZone() {
+    public ComponentZone() {
         super();
         
-        assetsPanel.setContent(new AssetsForm());
-        assetsPanel.setText(Manager.getRes(ResConstants.FORM_ASSETS_TITLE));
+        ComponentsForm cv = new ComponentsForm();
+        componentsPanel.setContent(cv);
+        componentsPanel.setText(Manager.getRes(ResConstants.FORM_COMPONENTS_TITLE));
         
-        getChildren().add(assetsPanel);
+        getChildren().add(componentsPanel);
         getStyleClass().add(StyleConstants.CLASS_HVBOX);
         setPadding(Insets.EMPTY);
     }

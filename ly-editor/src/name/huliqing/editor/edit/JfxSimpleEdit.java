@@ -19,21 +19,30 @@
  */
 package name.huliqing.editor.edit;
 
-import java.util.ArrayList;
-import java.util.List;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import name.huliqing.editor.Editor;
+import name.huliqing.editor.constants.AssetConstants;
+import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.constants.StyleConstants;
+import name.huliqing.editor.manager.Manager;
 import name.huliqing.editor.toolbar.Toolbar;
-import name.huliqing.fxswing.Jfx;
-import name.huliqing.editor.ui.ResourceZone;
+import name.huliqing.editor.ui.ComponentZone;
 import name.huliqing.editor.ui.toolbar.JfxToolbar;
 import name.huliqing.editor.ui.toolbar.JfxToolbarFactory;
+import name.huliqing.editor.ui.utils.JfxUtils;
+import name.huliqing.fxswing.Jfx;
 
 /**
  * @author huliqing
@@ -45,40 +54,50 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
     
     protected final BorderPane layout = new BorderPane();
     
-    protected final HBox propertyZone = new HBox();
+    protected final VBox propertyZone = new VBox();
     protected final StackPane bodyZone = new StackPane();
     protected final Pane editPanelBinder = new HBox();
-    protected final Pane editPanel = new HBox();
+    protected final Pane editPanel = new VBox();
+    protected final Pane rightPanel = new VBox();
     
     protected final HBox jfxToolbarPanel = new HBox();
-    protected final JfxExtToolbar jfxExtToolbarPanel = new JfxExtToolbar();
+   // protected final JfxExtToolbar jfxExtToolbarPanel = new JfxExtToolbar();
     
     /** 资源区 */
-    public final static ResourceZone resourceZone = new ResourceZone();
+    public final ComponentZone componetZone = new ComponentZone();
+    
+    // 模型，全部模型，光影（墙壁，天花板/地板）
+    private TabPane tabPane = new TabPane();
     
     // --
     protected JfxToolbar jfxToolbar;
-    protected final List<JfxToolbar> jfxExtToolbars = new ArrayList();
+    //protected final List<JfxToolbar> jfxExtToolbars = new ArrayList();
+    
+    private Button saveButton = new Button(Manager.getRes(ResConstants.MENU_FILE_SAVE), JfxUtils.createIcon(AssetConstants.INTERFACE_MENU_SAVE));
     
     public JfxSimpleEdit() {
-        layout.setLeft(propertyZone);
+       // layout.setLeft(propertyZone);
         layout.setCenter(bodyZone);
         //layout.setRight(jfxExtToolbarPanel);
-        layout.setRight(resourceZone);
-        layout.setBottom(jfxToolbarPanel);
+       // layout.setRight(componetZone);
+        rightPanel.getChildren().addAll(initTabPane(), jfxToolbarPanel);
+        layout.setRight(rightPanel);
+        //layout.setBottom(jfxToolbarPanel);
         layout.setBackground(Background.EMPTY);
         
         propertyZone.getStyleClass().add(StyleConstants.CLASS_HVBOX);
         
+        
         bodyZone.setBackground(Background.EMPTY);
-        bodyZone.getChildren().addAll(editPanel, editPanelBinder); // editPanelBinder要放上面，以响应拖放事件
+        bodyZone.getChildren().addAll(editPanelBinder); // editPanelBinder要放上面，以响应拖放事件
         
         editPanelBinder.setVisible(false);
         editPanelBinder.setStyle(STYLE_EDIT_PANEL);
         editPanelBinder.setOnDragOver(this::onDragOver);
         editPanelBinder.setOnDragDropped(this::onDragDropped);
         
-        jfxToolbarPanel.setPadding(Insets.EMPTY);
+        jfxToolbarPanel.prefHeight(35);
+        jfxToolbarPanel.setPadding(new Insets(5));
         jfxToolbarPanel.getStyleClass().add(StyleConstants.CLASS_HVBOX);
         
         // 只有在有扩展工具栏的时候才应该显示 
@@ -87,8 +106,77 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
         jfxExtToolbarPanel.setPadding(Insets.EMPTY);*/
         
       //  resourceZone.managedProperty().bind(jfxExtToolbarPanel.visibleProperty());
-        resourceZone.setVisible(true);
-        resourceZone.setPadding(Insets.EMPTY);
+        componetZone.setVisible(true);
+        componetZone.setPadding(Insets.EMPTY);
+        /*componetZone.getStyleClass().add(StyleConstants.CLASS_HVBOX);*/
+        
+        
+        // 特殊方式限制resourceZone在初始化的时候为200的宽度,
+        // 并在延迟一帧后去除resourceZone限制并取消自动宽度, 这样resourceZone不会随着父窗口的放大而拉大。
+        componetZone.setMinWidth(350);
+        componetZone.setMaxWidth(350);
+        Jfx.runOnJfx(() -> {
+            componetZone.setMinWidth(0);
+            componetZone.setMaxWidth(Integer.MAX_VALUE);
+            SplitPane.setResizableWithParent(componetZone, Boolean.TRUE);
+        });
+        
+        saveButton.setOnAction(e -> saveScene());
+    }
+    
+    /**
+     * 保存整个场景
+     */
+    private void saveScene() {
+        Editor editor = (Editor) Jfx.getJmeApp();
+        editor.save();
+        //saveButton.setDisable(true);
+    }
+    
+    
+/*    private void reset() {
+    	saveButton.showingProperty().addListener((ObservableValue<? extends Boolean> observable
+                , Boolean oldValue, Boolean newValue) -> {
+            if (newValue) {
+                Editor editor = (Editor) Jfx.getJmeApp();
+                saveButton.setDisable(!editor.isModified());
+            }
+        });
+    }*/
+    
+    /**
+     * 初始化tab：模型，全部模型，光影
+     */
+    private TabPane initTabPane() {
+        tabPane.setPrefWidth(400);
+        tabPane.prefHeightProperty().bind(layout.heightProperty().subtract(33));
+        tabPane.setMinSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
+        tabPane.setMaxSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
+        Tab tab1 = new Tab();
+        Tab tab2 = new Tab();
+        Tab tab3 = new Tab();
+        
+        tab1.setText("模型");
+        tab2.setText("添加模型");
+        tab3.setText("光影");
+        
+        tab1.setClosable(false);
+        tab2.setClosable(false);
+        tab3.setClosable(false);
+        
+        tabPane.getTabs().add(tab1);
+        tabPane.getTabs().add(tab3);
+        tabPane.getTabs().add(tab2);
+        
+        Pane mPane = new VBox(); 
+        propertyZone.prefHeightProperty().bind(tabPane.heightProperty().divide(2));
+        editPanel.prefHeightProperty().bind(tabPane.heightProperty().divide(2));
+        mPane.getChildren().addAll(propertyZone, editPanel);
+        tab1.setContent(mPane);
+        
+        tab2.setContent(componetZone);
+        
+        return tabPane;
     }
     
     @Override
@@ -105,12 +193,12 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
         }
         
         // 扩展工具栏
-        List<Toolbar> extToolbars = jmeEdit.getExtToolbars();
+/*        List<Toolbar> extToolbars = jmeEdit.getExtToolbars();
         if (extToolbars != null && !extToolbars.isEmpty()) {
             extToolbars.stream().map((t) -> JfxToolbarFactory.createJfxToolbar(t)).forEach((jtl) -> {
                 addJfxExtToolbar(jtl);
             });
-        }
+        }*/
         
         // 强制刷新一下UI，必须的，否则界面无法实时刷新(JFX嵌入Swing的一个BUG)
         Jfx.jfxForceUpdate();
@@ -124,12 +212,12 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
             jfxToolbar.cleanup();
             jfxToolbar = null;
         }
-        if (jfxExtToolbars != null && !jfxExtToolbars.isEmpty()) {
+/*        if (jfxExtToolbars != null && !jfxExtToolbars.isEmpty()) {
             jfxExtToolbars.stream().filter((jtb) -> (jtb.isInitialized())).forEach((jtb) -> {
                 jtb.cleanup();
             });
             jfxExtToolbars.clear();
-        }
+        }*/
         layout.prefWidthProperty().unbind();
         layout.prefHeightProperty().unbind();
         editRoot.getChildren().remove(layout);
@@ -162,7 +250,7 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
      * @param visible 
      */
     public void setExtToolbarVisible(boolean visible) {
-        jfxExtToolbarPanel.setToolbarVisible(visible);
+        //jfxExtToolbarPanel.setToolbarVisible(visible);
     }
     
     /**
@@ -181,6 +269,8 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
             }
             jfxToolbarPanel.getChildren().add(jfxToolbar.getView());
         }
+        
+        jfxToolbarPanel.getChildren().add(saveButton);
     }
 
     /**
@@ -188,25 +278,25 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
      * @param jfxToolbar
      */
     protected void addJfxExtToolbar(JfxToolbar jfxToolbar) {
-        if (jfxExtToolbars != null && jfxExtToolbars.contains(jfxToolbar)) {
+/*        if (jfxExtToolbars != null && jfxExtToolbars.contains(jfxToolbar)) {
             return;
-        }
+        }*/
         if (!jfxToolbar.isInitialized()) {
             jfxToolbar.initialize();
         }
-        jfxExtToolbarPanel.addToolbar(jfxToolbar.getName(), jfxToolbar.getView());
-        jfxExtToolbarPanel.setVisible(true);
-        jfxExtToolbars.add(jfxToolbar);
+/*        jfxExtToolbarPanel.addToolbar(jfxToolbar.getName(), jfxToolbar.getView());
+        jfxExtToolbarPanel.setVisible(true);*/
+       // jfxExtToolbars.add(jfxToolbar);
     }
 
     protected boolean removeJfxExtToolbar(JfxToolbar jfxToolbar) {
-        if (jfxExtToolbarPanel.removeToolbar(jfxToolbar.getName())) {
+/*        if (jfxExtToolbarPanel.removeToolbar(jfxToolbar.getName())) {
             jfxExtToolbars.remove(jfxToolbar);
             if (jfxToolbar.isInitialized()) {
                 jfxToolbar.cleanup();
             }
             return true;
-        }
+        }*/
         return false;
     }
     

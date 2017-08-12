@@ -50,7 +50,7 @@ public class Editor extends SimpleApplication{
             stateManager.detach(stats);
         }
 //        stateManager.attach(new EditorStatsAppState()); // remove
-        stateManager.attach(new FpsAppState());
+        //stateManager.attach(new FpsAppState());
         inputManager.setCursorVisible(true);
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
         flyCam.setEnabled(false);

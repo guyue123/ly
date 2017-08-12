@@ -22,6 +22,7 @@ package name.huliqing.editor;
 import com.jme3.app.Application;
 import com.jme3.app.StatsAppState;
 import com.jme3.app.state.AppStateManager;
+
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.ToggleButton;
@@ -29,7 +30,6 @@ import javafx.scene.control.Tooltip;
 import name.huliqing.editor.constants.AssetConstants;
 import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.manager.Manager;
-import name.huliqing.editor.manager.UIManager;
 import name.huliqing.editor.ui.utils.JfxUtils;
 import name.huliqing.fxswing.Jfx;
 
@@ -59,7 +59,7 @@ public class FpsAppState extends StatsAppState {
                     setEnabled(newValue);
                 });
             });
-            UIManager.ZONE_STATUS.getChildren().addAll(statisticsIcon);
+           // UIManager.ZONE_STATUS.getChildren().addAll(statisticsIcon);
         });
     }
 

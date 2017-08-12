@@ -19,10 +19,8 @@
  */
 package name.huliqing.editor.manager;
 
-import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -37,7 +35,6 @@ import name.huliqing.editor.ui.MainLayout;
 import name.huliqing.editor.ui.MenuForm;
 import name.huliqing.editor.ui.OutputForm;
 import name.huliqing.editor.ui.ResourceZone;
-import name.huliqing.editor.ui.StatusZone;
 import name.huliqing.fxswing.Jfx;
 
 /**
@@ -50,7 +47,7 @@ public class UIManager {
     
     // ---- 主体区域
     /** 菜单区域*/
-    public final static MenuForm ZONE_MENU = new MenuForm();
+    //public final static MenuForm ZONE_MENU = new MenuForm();
     
     /** 资源区 */
     public final static ResourceZone ZONE_RESOURCE = new ResourceZone();
@@ -59,20 +56,20 @@ public class UIManager {
     public final static Pane ZONE_EDIT = new VBox();
     
     /** 文本编辑区 */
-    public final static TabPane ZONE_TEXT = new TabPane();
+    //public final static TabPane ZONE_TEXT = new TabPane();
     
     /** 状态区 */
-    public final static StatusZone ZONE_STATUS = new StatusZone();
+    //public final static StatusZone ZONE_STATUS = new StatusZone();
     
     // ---- 各种窗口
     private static OutputForm outputForm;
 
     public final static void initializeLayout(Pane jfxRoot) {
         ZONE_EDIT.setBackground(Background.EMPTY);
-        ZONE_TEXT.getTabs().addListener((ListChangeListener.Change<? extends Tab> c) -> {
+/*        ZONE_TEXT.getTabs().addListener((ListChangeListener.Change<? extends Tab> c) -> {
             if (mainLayout != null) 
                 mainLayout.setTextZoneVisible(!c.getList().isEmpty());
-        });
+        });*/
         
         // 加载样式文件
         Jfx.getJfxRoot().getStylesheets().add("resources/style/gray_style.css");
@@ -93,14 +90,14 @@ public class UIManager {
             tab.setContent(outputForm);
             outputForm.setUserData(tab);
         }
-        Tab tab = (Tab) outputForm.getUserData();
+/*        Tab tab = (Tab) outputForm.getUserData();
         if (!ZONE_TEXT.getTabs().contains(tab)) {
             outputForm.setVisible(true);
             ZONE_TEXT.getTabs().add(tab);
         } else {
             ZONE_TEXT.getTabs().remove(tab);
             outputForm.setVisible(false);
-        }
+        }*/
     }
     
     public final static void output(String output, Color color) {
@@ -116,7 +113,7 @@ public class UIManager {
         if (mainLayout == null) {
             mainLayout = new MainLayout(root);
         }
-        mainLayout.setZones(ZONE_MENU, ZONE_RESOURCE, ZONE_EDIT, ZONE_STATUS, ZONE_TEXT);
+        mainLayout.setZones(null, ZONE_RESOURCE, ZONE_EDIT, null, null);
         root.getChildren().add(mainLayout);
     }
     

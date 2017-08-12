@@ -21,19 +21,18 @@ package name.huliqing.editor.toolbar;
 
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+
 import name.huliqing.editor.constants.AssetConstants;
 import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.edit.SimpleJmeEdit;
 import name.huliqing.editor.manager.Manager;
-import name.huliqing.editor.tools.base.CameraTool;
-import name.huliqing.editor.tools.base.GridTool;
-import name.huliqing.editor.tools.base.ModeTool;
-import name.huliqing.editor.tools.base.RotationTool;
-import name.huliqing.editor.tools.base.ScaleTool;
 import name.huliqing.editor.tools.Tool;
+import name.huliqing.editor.tools.base.CameraTool;
 import name.huliqing.editor.tools.base.CameraViewTool;
+import name.huliqing.editor.tools.base.ModeTool;
 import name.huliqing.editor.tools.base.MoveTool;
 import name.huliqing.editor.tools.base.PickTool;
+import name.huliqing.editor.tools.base.RotationTool;
 import name.huliqing.editor.tools.base.UndoRedoTool;
 
 /**
@@ -46,12 +45,12 @@ public class BaseEditToolbar extends EditToolbar<SimpleJmeEdit>{
     private ModeTool modeTool;
     private CameraViewTool cameraViewTool;
     private CameraTool cameraTool;
-    private GridTool gridTool;
+    //private GridTool gridTool;
     private PickTool pickTool;
     
     private MoveTool moveTool;
     private RotationTool rotationTool;
-    private ScaleTool scaleTool;
+    //private ScaleTool scaleTool;
     
     public BaseEditToolbar(SimpleJmeEdit edit) {
         super(edit);
@@ -70,11 +69,11 @@ public class BaseEditToolbar extends EditToolbar<SimpleJmeEdit>{
         modeTool = new ModeTool(Manager.getRes(ResConstants.TOOL_MODE), Manager.getRes(ResConstants.TOOL_MODE_TIP), null);
         cameraViewTool = new CameraViewTool(Manager.getRes(ResConstants.TOOL_CAMERAVIEW), Manager.getRes(ResConstants.TOOL_CAMERAVIEW_TIP), null);
         cameraTool = new CameraTool(Manager.getRes(ResConstants.TOOL_CAMERA), Manager.getRes(ResConstants.TOOL_CAMERA_TIP), null);
-        gridTool = new GridTool(Manager.getRes(ResConstants.TOOL_GRID), Manager.getRes(ResConstants.TOOL_GRID_TIP), AssetConstants.INTERFACE_TOOL_GRID);
+        //gridTool = new GridTool(Manager.getRes(ResConstants.TOOL_GRID), Manager.getRes(ResConstants.TOOL_GRID_TIP), AssetConstants.INTERFACE_TOOL_GRID);
         pickTool = new PickTool("pickTool", null, null);
         moveTool = new MoveTool(Manager.getRes(ResConstants.TOOL_MOVE), Manager.getRes(ResConstants.TOOL_MOVE_TIP),  AssetConstants.INTERFACE_TOOL_MOVE);
         rotationTool = new RotationTool(Manager.getRes(ResConstants.TOOL_ROTATION), Manager.getRes(ResConstants.TOOL_ROTATION_TIP), AssetConstants.INTERFACE_TOOL_ROTATION);
-        scaleTool = new ScaleTool(Manager.getRes(ResConstants.TOOL_SCALE), Manager.getRes(ResConstants.TOOL_SCALE_TIP), AssetConstants.INTERFACE_TOOL_SCALE);
+        //scaleTool = new ScaleTool(Manager.getRes(ResConstants.TOOL_SCALE), Manager.getRes(ResConstants.TOOL_SCALE_TIP), AssetConstants.INTERFACE_TOOL_SCALE);
         
         undoRedoTool.bindUndoRedoEvent().bindKey(KeyInput.KEY_Z, true);
         
@@ -95,34 +94,34 @@ public class BaseEditToolbar extends EditToolbar<SimpleJmeEdit>{
         moveTool.bindFreeMoveStartEvent().bindKey(KeyInput.KEY_G, false);
         moveTool.bindFreeMoveCancelEvent().setPrior(2).bindButton(MouseInput.BUTTON_RIGHT, true);
         
-        scaleTool.bindScaleEvent().setPrior(2).bindButton(MouseInput.BUTTON_LEFT, true);
+       /* scaleTool.bindScaleEvent().setPrior(2).bindButton(MouseInput.BUTTON_LEFT, true);
         scaleTool.bindFreeScaleStartEvent().bindKey(KeyInput.KEY_S, false);
-        scaleTool.bindFreeScaleCancelEvent().setPrior(2).bindButton(MouseInput.BUTTON_RIGHT, true);
+        scaleTool.bindFreeScaleCancelEvent().setPrior(2).bindButton(MouseInput.BUTTON_RIGHT, true);*/
         
         rotationTool.bindRotationEvent().setPrior(2).bindButton(MouseInput.BUTTON_LEFT, true);
         rotationTool.bindFreeRotationStartEvent().bindKey(KeyInput.KEY_R, false);
         rotationTool.bindFreeRotationCancelEvent().setPrior(2).bindButton(MouseInput.BUTTON_RIGHT, true); 
         
-        Tool[] conflicts = new Tool[]{moveTool, scaleTool, rotationTool};
+        Tool[] conflicts = new Tool[]{moveTool,  rotationTool};
         addToggleMapping(new ToggleMappingEvent(KeyInput.KEY_G, moveTool).setConflicts(conflicts));
-        addToggleMapping(new ToggleMappingEvent(KeyInput.KEY_S, scaleTool).setConflicts(conflicts));
+        //addToggleMapping(new ToggleMappingEvent(KeyInput.KEY_S, scaleTool).setConflicts(conflicts));
         addToggleMapping(new ToggleMappingEvent(KeyInput.KEY_R, rotationTool).setConflicts(conflicts));
         
         add(undoRedoTool);
-        add(modeTool);
-        add(cameraViewTool);
-        add(cameraTool);
-        add(gridTool);
-        add(pickTool);
+        //add(modeTool);
+        //add(cameraViewTool);
+        //add(cameraTool);
+        //add(gridTool);
+       add(pickTool);
         add(moveTool);
         add(rotationTool);
-        add(scaleTool);
+       // add(scaleTool);
         
         setEnabled(undoRedoTool, true);
         setEnabled(cameraViewTool, true);
         setEnabled(cameraTool, true);
         setEnabled(modeTool, true);
-        setEnabled(gridTool, true);
+        //setEnabled(gridTool, true);
         setEnabled(pickTool, true);
         setEnabled(moveTool, true);
     }
@@ -150,10 +149,10 @@ public class BaseEditToolbar extends EditToolbar<SimpleJmeEdit>{
         return cameraTool;
     }
 
-    public GridTool getGridTool() {
+/*    public GridTool getGridTool() {
         return gridTool;
     }
-
+*/
     public PickTool getPickTool() {
         return pickTool;
     }
@@ -166,8 +165,8 @@ public class BaseEditToolbar extends EditToolbar<SimpleJmeEdit>{
         return rotationTool;
     }
 
-    public ScaleTool getScaleTool() {
+/*    public ScaleTool getScaleTool() {
         return scaleTool;
-    }
+    }*/
     
 }

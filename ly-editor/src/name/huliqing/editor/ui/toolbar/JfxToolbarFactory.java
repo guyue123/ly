@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import name.huliqing.editor.toolbar.BaseEditToolbar;
-import name.huliqing.editor.toolbar.TerrainToolbar;
 import name.huliqing.editor.toolbar.Toolbar;
 
 /**
@@ -39,7 +39,7 @@ public class JfxToolbarFactory {
     
     static {
         MAPPING.put(BaseEditToolbar.class, JfxSimpleToolbar.class);
-        MAPPING.put(TerrainToolbar.class, JfxEditToolbar.class);
+     //   MAPPING.put(TerrainToolbar.class, JfxEditToolbar.class);
     }
     
     public final static JfxToolbar createJfxToolbar(Toolbar toolbar) {

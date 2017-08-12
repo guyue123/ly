@@ -23,6 +23,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.renderer.Statistics;
+
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -31,7 +32,6 @@ import javafx.scene.control.Tooltip;
 import name.huliqing.editor.constants.AssetConstants;
 import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.manager.Manager;
-import name.huliqing.editor.manager.UIManager;
 import name.huliqing.editor.ui.utils.JfxUtils;
 import name.huliqing.fxswing.Jfx;
 
@@ -69,7 +69,6 @@ public class EditorStatsAppState extends AbstractAppState {
                 label.setVisible(newValue);
                 setEnabled(newValue);
             });
-            UIManager.ZONE_STATUS.getChildren().addAll(statisticsIcon, label);
         });
         labels = stat.getLabels();
         datas = new int[labels.length];
@@ -79,7 +78,7 @@ public class EditorStatsAppState extends AbstractAppState {
     @Override
     public void cleanup() {
         Jfx.runOnJfx(() -> {
-            UIManager.ZONE_STATUS.getChildren().removeAll(statisticsIcon, label);
+           // UIManager.ZONE_STATUS.getChildren().removeAll(statisticsIcon, label);
         });
         super.cleanup();
     }
