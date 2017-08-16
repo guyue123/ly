@@ -126,8 +126,12 @@ public class ConverterManager {
         return DATA_DEFINES.get(name);
     }
     
+    public final static DataDefine getDataDefine(ObjectData data) {
+        return DATA_DEFINES.get(data.getTagName());
+    }
+    
     public final static DataConverter createDataConverter(JfxAbstractEdit edit, ObjectData data, FieldConverter parent)  {
-        DataDefine dd = DATA_DEFINES.get(data.getTagName());
+        DataDefine dd = getDataDefine(data.getTagName());
         if (dd == null) {
            throw new NullPointerException("Could not find DataDefine by tagName=" + data.getTagName());
         }
