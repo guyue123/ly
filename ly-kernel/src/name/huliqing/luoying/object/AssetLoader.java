@@ -33,7 +33,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 import name.huliqing.luoying.LuoYing;
-import name.huliqing.luoying.manager.ModelManager;
 import name.huliqing.luoying.utils.GeometryUtils;
 
 /**

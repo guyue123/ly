@@ -19,6 +19,9 @@
  */
 package name.huliqing.editor.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
@@ -34,16 +37,65 @@ public class ComponentZone extends VBox{
     
     private final TitledPane componentsPanel = new TitledPane();
     
+    /**
+     * 过滤组件
+     */
+    private List<String> componentTypes;
+    
     public ComponentZone() {
         super();
         
-        ComponentsForm cv = new ComponentsForm();
+        init();
+    }
+    
+    public ComponentZone(String componentType) {
+        super();
+        
+        if (componentTypes == null) {
+        	componentTypes = new ArrayList<String>();
+        }
+        componentTypes.add(componentType);
+        init();
+    }
+    
+    public ComponentZone(List<String> types) {
+        super();
+        
+        if (componentTypes == null) {
+        	componentTypes = new ArrayList<String>();
+        }
+        
+        if (types != null) {
+        	componentTypes.addAll(types);
+        }
+        
+        init();
+    }
+    
+    public ComponentZone(String... types) {
+        super();
+        
+        if (componentTypes == null) {
+        	componentTypes = new ArrayList<String>();
+        }
+        
+        if (types != null) {
+        	for (String t : types) {
+        		componentTypes.add(t);
+        	}
+        }
+        
+        init();
+    }
+
+	private void init() {
+		ComponentsForm cv = new ComponentsForm(componentTypes);
         componentsPanel.setContent(cv);
         componentsPanel.setText(Manager.getRes(ResConstants.FORM_COMPONENTS_TITLE));
         
         getChildren().add(componentsPanel);
         getStyleClass().add(StyleConstants.CLASS_HVBOX);
         setPadding(Insets.EMPTY);
-    }
+	}
     
 }

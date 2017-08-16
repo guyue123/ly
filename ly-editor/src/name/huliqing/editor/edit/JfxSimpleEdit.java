@@ -19,7 +19,6 @@
  */
 package name.huliqing.editor.edit;
 
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
@@ -63,8 +62,11 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
     protected final HBox jfxToolbarPanel = new HBox();
    // protected final JfxExtToolbar jfxExtToolbarPanel = new JfxExtToolbar();
     
-    /** 资源区 */
-    public final ComponentZone componetZone = new ComponentZone();
+    /** 资源区  实体模型*/
+    public final ComponentZone componetZone = new ComponentZone("entitySimpleModel");
+    
+    /** 资源区  实体模型*/
+    public final ComponentZone componetLightZone = new ComponentZone("entityDirectionalLight", "entityPointLight");
     
     // 模型，全部模型，光影（墙壁，天花板/地板）
     private TabPane tabPane = new TabPane();
@@ -106,7 +108,14 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
         jfxExtToolbarPanel.setPadding(Insets.EMPTY);*/
         
       //  resourceZone.managedProperty().bind(jfxExtToolbarPanel.visibleProperty());
-        componetZone.setVisible(true);
+        setComponetProps(componetZone);
+        setComponetProps(componetLightZone);
+        
+        saveButton.setOnAction(e -> saveScene());
+    }
+
+	private void setComponetProps(ComponentZone componetZone) {
+		componetZone.setVisible(true);
         componetZone.setPadding(Insets.EMPTY);
         /*componetZone.getStyleClass().add(StyleConstants.CLASS_HVBOX);*/
         
@@ -120,9 +129,7 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
             componetZone.setMaxWidth(Integer.MAX_VALUE);
             SplitPane.setResizableWithParent(componetZone, Boolean.TRUE);
         });
-        
-        saveButton.setOnAction(e -> saveScene());
-    }
+	}
     
     /**
      * 保存整个场景
@@ -175,6 +182,7 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
         tab1.setContent(mPane);
         
         tab2.setContent(componetZone);
+        tab3.setContent(componetLightZone);
         
         return tabPane;
     }

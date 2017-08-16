@@ -19,8 +19,10 @@
  */
 package name.huliqing.editor.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
@@ -30,14 +32,16 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import name.huliqing.editor.constants.DataFormatConstants;
 import name.huliqing.editor.component.ComponentDefine;
 import name.huliqing.editor.constants.ComponentConstants;
 import name.huliqing.editor.constants.ConfigConstants;
+import name.huliqing.editor.constants.DataFormatConstants;
 import name.huliqing.editor.manager.ComponentManager;
 import name.huliqing.editor.manager.ConfigManager.ConfigChangedListener;
 import name.huliqing.editor.manager.Manager;
 import name.huliqing.fxswing.Jfx;
+import name.huliqing.luoying.xml.DataFactory;
+import name.huliqing.luoying.xml.Proto;
 
 /**
  *
@@ -46,9 +50,19 @@ import name.huliqing.fxswing.Jfx;
 public class ComponentsForm extends ListView<ComponentDefine> implements ConfigChangedListener{
     private static final Logger LOG = Logger.getLogger(ComponentsForm.class.getName());
     
+    private List<String> componentTypes;
+    
     public ComponentsForm() {
+        init();
+    }
+    
+    public ComponentsForm(List<String> types) {
+    	componentTypes = types;
+        init();
+    }
 
-        setCellFactory((ListView<ComponentDefine> param) -> new ListCell<ComponentDefine>() {
+	private void init() {
+		setCellFactory((ListView<ComponentDefine> param) -> new ListCell<ComponentDefine>() {
             @Override
             protected void updateItem(ComponentDefine item, boolean empty) {
                 super.updateItem(item, empty);
@@ -69,7 +83,32 @@ public class ComponentsForm extends ListView<ComponentDefine> implements ConfigC
         
         // 切换资源目录的时候要重置组件面板
         Manager.getConfigManager().addListener(this);
-    }
+	}
+	
+	/**
+	 * 过滤
+	 * @param items
+	 * @return
+	 */
+	private List<ComponentDefine> filtComponent(List<ComponentDefine> items) {
+		if (componentTypes == null || componentTypes.isEmpty()) {
+			return items;
+		}
+		
+		List<ComponentDefine> selectedItems = new ArrayList<>();
+		for (ComponentDefine item : items) {
+			if (componentTypes != null && !componentTypes.isEmpty() && item != null) {
+	    		Proto p = DataFactory.getProto(item.getId());
+	    		if (p != null) {
+	    			if (componentTypes.contains(p.getTagName())) {
+	    				selectedItems.add(item);
+	    			}
+	    		}
+	    	}
+		}
+		
+		return selectedItems;
+	}
     
     @Override
     public void onConfigChanged(String key) {
@@ -82,11 +121,11 @@ public class ComponentsForm extends ListView<ComponentDefine> implements ConfigC
         getItems().clear();
         List<ComponentDefine> cds = ComponentManager.getComponentsByType(ComponentConstants.ENTITY);
         if (cds != null) {
-            getItems().addAll(cds);
+            getItems().addAll(filtComponent(cds));
         }
         List<ComponentDefine> cdsFilter = ComponentManager.getComponentsByType(ComponentConstants.ENTITY_FILTER);
         if (cdsFilter != null) {
-            getItems().addAll(cdsFilter);
+            getItems().addAll(filtComponent(cdsFilter));
         }
     }
 
