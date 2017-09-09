@@ -43,7 +43,12 @@ public class Feature {
         return name;
     }
 
-    public String getValue() {
+    @Override
+	public String toString() {
+		return "Feature [data=" + data + ", name=" + name + ", value=" + value + "]";
+	}
+
+	public String getValue() {
         return value;
     }
     

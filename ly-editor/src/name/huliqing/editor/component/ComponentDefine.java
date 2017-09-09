@@ -31,14 +31,65 @@ public class ComponentDefine implements Serializable {
     private String type;
     private String icon;
     private String converterClass;
+    /**
+     * 模型显示名称
+     */
+    private String name;
+    
+    /**
+     * 分类ID
+     */
+    private String cid;
+    
+    /**
+     * 分类名称
+     */
+    private String cname;
+    
+    /**
+     * 模型介绍
+     */
+    private String desc;
+    
+    /**
+     * 存储路径
+     */
+    private String path;
+    
+/*    *//**
+     * 模型默认尺寸:长
+     *//*
+    private float length;
+    
+    *//**
+     * 模型默认尺寸:宽
+     *//*
+    private float width;
+    
+    *//**
+     * 模型默认尺寸:高
+     *//*
+    private float height;*/
+    
+    /**
+     * 默认材质编码
+     */
+    private String tid;
     
     public ComponentDefine() {}
     
-    public ComponentDefine(String id, String type, String icon, String converterClass) {
+    public ComponentDefine(String id, String type, String icon, String converterClass, String name, String cid, String cname, String desc, String path, String tid) {
         this.id = id;
         this.type = type;
         this.icon = icon;
         this.converterClass = converterClass;
+        
+        this.name = name;
+        this.cid = cid;
+        this.cname = cname;
+        this.desc = desc;
+        this.path = path;
+        this.tid = tid;
     }
     
     public String getId() {
@@ -62,4 +113,30 @@ public class ComponentDefine implements Serializable {
         return "ComponentDefine{" + "id=" + id + ", type=" + type + ", icon=" + icon + ", converterClass=" + converterClass + '}';
     }
 
+	public String getName() {
+		if (name == null || "".equals(name.trim())) {
+			return id;
+		}
+		return name;
+	}
+
+	public String getCid() {
+		return cid;
+	}
+
+	public String getCname() {
+		return cname;
+	}
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public String getTid() {
+		return tid;
+	}
 }

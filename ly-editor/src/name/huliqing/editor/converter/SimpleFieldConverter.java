@@ -19,8 +19,8 @@
  */
 package name.huliqing.editor.converter;
 
-import javafx.geometry.Pos;
-import javafx.scene.Node;
+import java.util.Map;
+
 import name.huliqing.editor.edit.JfxAbstractEdit;
 import name.huliqing.editor.edit.UndoRedo;
 import name.huliqing.fxswing.Jfx;
@@ -40,7 +40,7 @@ public abstract class SimpleFieldConverter<E extends JfxAbstractEdit, T extends 
     @Override
     public void initialize() {
         super.initialize();
-        root.setText(field);
+/*        root.setText(field);
         root.setAnimated(false);
         root.setAlignment(Pos.CENTER_LEFT);
         
@@ -52,12 +52,12 @@ public abstract class SimpleFieldConverter<E extends JfxAbstractEdit, T extends 
         Node layout = createLayout();
         layout.setDisable(disabled);
         root.setExpanded(!collapsed);
-        root.setContent(layout);
+        root.setContent(layout);*/
     }
 
     @Override
     public void cleanup() {
-        root.setContent(null);
+       // root.setContent(null);
         super.cleanup();
     }
     
@@ -70,6 +70,29 @@ public abstract class SimpleFieldConverter<E extends JfxAbstractEdit, T extends 
             return;
         }
         parent.updateAttribute(field, propertyValue);
+    }
+    
+    /**
+     * 更新字段属性
+     * @param propertyValue 
+     */
+    public void updateAttribute(String prop, Object propertyValue) {
+        if (ignoreChangedEvent) {
+            return;
+        }
+        parent.updateAttribute(prop, propertyValue);
+    }
+    
+    /**
+     * 更新多个属性
+     * @param attrs
+     */
+    public void updateMultAttibutes(Map<String, Object> attrs) {
+        if (ignoreChangedEvent) {
+            return;
+        }
+        
+        parent.updateMultAttributes(attrs);
     }
     
     /**

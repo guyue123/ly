@@ -69,7 +69,7 @@ public class ComponentsForm extends ListView<ComponentDefine> implements ConfigC
                 String name = null;
                 Node icon = null;
                 if (item != null && !empty) {
-                    name = item.getId();
+                    name = item.getName();
                 }
                 setText(name);
                 setGraphic(icon);

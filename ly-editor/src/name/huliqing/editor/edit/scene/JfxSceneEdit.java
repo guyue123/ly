@@ -19,38 +19,40 @@
  */
 package name.huliqing.editor.edit.scene;
 
-import com.jme3.math.Vector2f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.jme3.math.Vector2f;
+
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TitledPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import name.huliqing.editor.component.ComponentDefine;
 import name.huliqing.editor.constants.DataFormatConstants;
 import name.huliqing.editor.constants.ResConstants;
-import name.huliqing.editor.manager.ConverterManager;
 import name.huliqing.editor.converter.DataConverter;
 import name.huliqing.editor.edit.JfxSimpleEdit;
 import name.huliqing.editor.edit.Mode;
+import name.huliqing.editor.edit.SimpleEditListener;
+import name.huliqing.editor.edit.controls.ControlTile;
+import name.huliqing.editor.edit.controls.entity.EntityControlTile;
+import name.huliqing.editor.manager.ComponentManager;
+import name.huliqing.editor.manager.ConverterManager;
+import name.huliqing.editor.manager.Manager;
 import name.huliqing.fxswing.Jfx;
 import name.huliqing.luoying.data.EntityData;
 import name.huliqing.luoying.data.SceneData;
 import name.huliqing.luoying.object.Loader;
-import name.huliqing.luoying.object.scene.Scene;
-import name.huliqing.editor.edit.controls.ControlTile;
-import name.huliqing.editor.edit.controls.entity.EntityControlTile;
-import name.huliqing.editor.manager.Manager;
 import name.huliqing.luoying.object.entity.Entity;
+import name.huliqing.luoying.object.scene.Scene;
 import name.huliqing.luoying.object.scene.SceneListener;
-import name.huliqing.editor.edit.SimpleEditListener;
-import name.huliqing.editor.component.ComponentDefine;
-import name.huliqing.editor.manager.ComponentManager;
 
 /**
  * 场景编辑器
@@ -62,7 +64,7 @@ public class JfxSceneEdit extends JfxSimpleEdit<SceneEdit>
     private static final Logger LOG = Logger.getLogger(JfxSceneEdit.class.getName());
 
     // 场景属性面板的容器
-    private final TitledPane scenePropertyPanel = new TitledPane();
+    private final VBox scenePropertyPanel = new VBox();
     private DataConverter sceneDataConverter;
     
     // 场景数据
@@ -176,8 +178,9 @@ public class JfxSceneEdit extends JfxSimpleEdit<SceneEdit>
                     sceneDataConverter = ConverterManager.createDataConverter(this, scene.getData(), null);
                     sceneDataConverter.initialize();
                     Region layout = sceneDataConverter.getLayout();
-                    scenePropertyPanel.setText(scene.getData().getId());
-                    scenePropertyPanel.setContent(layout);
+                   // scenePropertyPanel.setText(scene.getData().getId());
+                    //scenePropertyPanel.setContent(layout);
+                    scenePropertyPanel.getChildren().add(layout);
                     scenePropertyPanel.setPrefWidth(250);
                     layout.prefWidthProperty().bind(scenePropertyPanel.widthProperty());
                 });

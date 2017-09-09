@@ -137,11 +137,11 @@ public abstract class AbstractEntity implements Entity {
         if (scale != null) {
             spatial.setLocalScale(scale);
             
-            // 2017/07/27 重置模型中心位置
+            // 2017/07/27 重置模型中心位置  - 2017-09-07 此处处理有误
             if (originSpatialCenter !=null && !scale.equals(originSpatialScale)) {
             	Vector3f oldV3f = originSpatialCenter.mult(originSpatialScale);
             	Vector3f newV3f = ModelManager.getInstance().getModelCenter(spatial);
-            	spatial.setLocalTranslation(spatial.getLocalTranslation().add(oldV3f).subtract(newV3f));
+            	//spatial.setLocalTranslation(spatial.getLocalTranslation().add(oldV3f).subtract(newV3f));
             }
         }
 

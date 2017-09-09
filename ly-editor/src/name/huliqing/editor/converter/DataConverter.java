@@ -19,12 +19,15 @@
  */
 package name.huliqing.editor.converter;
 
-import com.jme3.export.Savable;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javafx.scene.control.ScrollPane;
+
+import com.jme3.export.Savable;
+
 import javafx.scene.control.TitledPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import name.huliqing.editor.constants.StyleConstants;
@@ -50,16 +53,24 @@ public abstract class DataConverter<E extends JfxAbstractEdit, T extends ObjectD
 
     protected final Map<String, FieldConverter> fieldConverters = new LinkedHashMap();
 
-    protected final ScrollPane dataScroll = new ScrollPane();
+    protected final VBox dataScroll = new VBox();
     protected final VBox fieldPanel = new VBox();
 
     // 子面板，显示子联系的物体
-    protected final TitledPane childPane = new TitledPane();
+    protected final VBox childPane = new VBox();
+    
+    // 显示光模型
+    protected final Pane childLightPane = new VBox();
+    
+    // 显示阴影模型
+    protected final Pane childShadowPane = new VBox();
+    
     protected DataConverter childDataConverter;
 
     public DataConverter() {
         dataScroll.setId(StyleConstants.ID_PROPERTY_PANEL);
-        dataScroll.setContent(fieldPanel);
+        //dataScroll.setContent(fieldPanel);
+        dataScroll.getChildren().add(fieldPanel);
         childPane.managedProperty().bind(childPane.visibleProperty());
         // for debug
 //        childPane.setStyle("-fx-border-style: solid inside;-fx-border-color:red;"); 
@@ -81,7 +92,22 @@ public abstract class DataConverter<E extends JfxAbstractEdit, T extends ObjectD
             return;
         }
         
-        if (value instanceof Byte) {
+        setAttribute(property, value);
+        notifyChanged();
+    }
+
+    /**
+     * 设置对象属性
+     * @param property
+     * @param value
+     */
+	protected void setAttribute(String property, Object value) {
+        if (value == null) {
+            data.setAttribute(property, (Savable) value); // 清除掉参数值. (Savable)用于调用特定的函数
+            return;
+        }
+        
+		if (value instanceof Byte) {
             data.setAttribute(property, (Byte) value);
             
         } else if (value instanceof Short) {
@@ -152,18 +178,54 @@ public abstract class DataConverter<E extends JfxAbstractEdit, T extends ObjectD
         } else {
             throw new UnsupportedOperationException("Unsupport data type=" + value.getClass());
         }
-        
-        notifyChanged();
+	}
+    
+    /**
+     * 2017/09/02
+     * 更新多个属性
+     * @param attrs
+     */
+    public void updateMultAttributes(Map<String, Object> attrs) {
+    	if (attrs == null || attrs.isEmpty()) {
+    		return;
+    	}
+    	
+    	Iterator<String> it = attrs.keySet().iterator();
+    	while (it.hasNext()) {
+    		String k = it.next();
+    		setAttribute(k, attrs.get(k));
+    	}
+    	notifyChanged();
     }
 
     @Override
     public void initialize() {
         super.initialize();
-
+        // 实体模型属性编辑面板
         jfxEdit.getEditPanel().getChildren().add(childPane);
         childPane.setVisible(false);
+        
+        // 光模型
+        if (!jfxEdit.getLightPanel().getChildren().contains(childLightPane)) {
+        	jfxEdit.getLightPanel().getChildren().add(childLightPane);
+        }
+        
+        // 阴影模型
+        // jfxEdit.getShadowPanel().getChildren().add(childShadowPane);
+        // 显示字段
+        displayFields();
 
-        if (fieldDefines != null && !fieldDefines.isEmpty()) {
+        // 隐藏指定的字段
+        hideFields();
+       // dataScroll.setFitToWidth(true);
+       // dataScroll.prefWidthProperty().bind();
+    }
+
+    /**
+     * 显示字段
+     */
+	protected void displayFields() {
+		if (fieldDefines != null && !fieldDefines.isEmpty()) {
             fieldDefines.values().forEach(t -> {
                 FieldConverter pc = ConverterManager.createPropertyConverter(jfxEdit, data, t, this);
                 pc.initialize();
@@ -172,9 +234,13 @@ public abstract class DataConverter<E extends JfxAbstractEdit, T extends ObjectD
                 fieldConverters.put(t.getField(), pc);
             });
         }
+	}
 
-        // 隐藏指定的字段
-        List<String> hideFields = featureHelper.getAsList(FEATURE_HIDE_FIELDS);
+    /**
+     * 隐藏指定的字段
+     */
+	private void hideFields() {
+		List<String> hideFields = featureHelper.getAsList(FEATURE_HIDE_FIELDS);
         if (hideFields != null) {
             hideFields.forEach(t -> {
                 FieldConverter pc = fieldConverters.get(t);
@@ -185,8 +251,7 @@ public abstract class DataConverter<E extends JfxAbstractEdit, T extends ObjectD
                 }
             });
         }
-        dataScroll.setFitToWidth(true);
-    }
+	}
 
     @Override
     public void cleanup() {
@@ -206,6 +271,7 @@ public abstract class DataConverter<E extends JfxAbstractEdit, T extends ObjectD
         fieldPanel.getChildren().clear();
 
         jfxEdit.getEditPanel().getChildren().remove(childPane);
+        //jfxEdit.getLightPanel().getChildren().clear();
         super.cleanup();
     }
     
@@ -216,10 +282,25 @@ public abstract class DataConverter<E extends JfxAbstractEdit, T extends ObjectD
             }
         }
         childDataConverter = childConverter;
-        childPane.setText(childTitle);
-        childPane.setContent(childDataConverter.getLayout());
+        //childPane.setText(childTitle);
+        //childPane.setContent(childDataConverter.getLayout());
+        childPane.getChildren().clear();
+        childPane.getChildren().add(childDataConverter.getLayout());
         childPane.setVisible(true);
     }
     
+    public void setLightPane(String childTitle, DataConverter childConverter) {
+        // 子面板，显示子联系的物体
+    	TitledPane lightChildPane = new TitledPane();
+    	lightChildPane.setText(childTitle);
+    	lightChildPane.setContent(childConverter.getLayout());
+    	lightChildPane.setVisible(true);
+        
+    	childLightPane.getChildren().add(lightChildPane);
+    }
+    
+    public void setShadowPane(Pane shadowPane) {
+    	jfxEdit.getShadowPanel().getChildren().add(shadowPane);
+    }
     
 }

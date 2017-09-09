@@ -19,6 +19,12 @@
  */
 package name.huliqing.luoying.object.scene;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.math.Vector3f;
 import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;
@@ -30,18 +36,14 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.SafeArrayList;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import name.huliqing.luoying.LuoYing;
 import name.huliqing.luoying.data.ProgressData;
 import name.huliqing.luoying.data.SceneData;
 import name.huliqing.luoying.object.Loader;
 import name.huliqing.luoying.object.entity.Entity;
-import name.huliqing.luoying.utils.MaterialUtils;
 import name.huliqing.luoying.object.progress.Progress;
+import name.huliqing.luoying.utils.MaterialUtils;
 
 /**
  * 抽象场景类
@@ -369,6 +371,26 @@ public abstract class AbstractScene implements Scene, SceneLoader.Listener {
     public boolean removeSceneListener(SceneListener listener) {
         return listeners != null && listeners.remove(listener);
     }
+
+	@Override
+	public List<Entity> getEntities(List<String> types) {
+		if (types == null || types.isEmpty()) {
+			return unmodifiedEntities;
+		}
+		
+	    /** 一直不可直接修改的列表，这个列表主要用于外部直接读取当前场景中的所有实体。但是不允许外部直接写操作这个列表 */
+	    List<Entity> ets = new ArrayList<>();
+	    
+	    for (Entity et : entities) {
+	    	for (String t : types) {
+	    		if (t.equalsIgnoreCase(et.getData().getTagName())) {
+	    			ets.add(et);
+	    		}
+	    	}
+	    }
+	    
+		return Collections.unmodifiableList(ets);
+	}
 
     
 }

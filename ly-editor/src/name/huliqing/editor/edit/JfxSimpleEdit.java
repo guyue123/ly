@@ -33,6 +33,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import name.huliqing.editor.Editor;
 import name.huliqing.editor.constants.AssetConstants;
+import name.huliqing.editor.constants.EntityConstants;
 import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.constants.StyleConstants;
 import name.huliqing.editor.manager.Manager;
@@ -63,19 +64,37 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
    // protected final JfxExtToolbar jfxExtToolbarPanel = new JfxExtToolbar();
     
     /** 资源区  实体模型*/
-    public final ComponentZone componetZone = new ComponentZone("entitySimpleModel");
+    public final ComponentZone componetZone = new ComponentZone(EntityConstants.ENTITY_SIMPLE_MODEL);
     
     /** 资源区  实体模型*/
-    public final ComponentZone componetLightZone = new ComponentZone("entityDirectionalLight", "entityPointLight");
+    public final ComponentZone componetLightZone = new ComponentZone(EntityConstants.ENTITY_DIRECTIONAL_LIGHT, EntityConstants.ENTITY_POINT_LIGHT,
+    		EntityConstants.ENTITY_AMBIENT_LIGHT, EntityConstants.ENTITY_DIRECTIONAL_LIGHTSHADOW_FILTER, EntityConstants.ENTITY_FXAA_FILTER, 
+    		EntityConstants.ENTITY_SSAOFILTER);
+
     
     // 模型，全部模型，光影（墙壁，天花板/地板）
     private TabPane tabPane = new TabPane();
     
-    // --
+    // 工具条：移动，缩放，保存
     protected JfxToolbar jfxToolbar;
     //protected final List<JfxToolbar> jfxExtToolbars = new ArrayList();
     
     private Button saveButton = new Button(Manager.getRes(ResConstants.MENU_FILE_SAVE), JfxUtils.createIcon(AssetConstants.INTERFACE_MENU_SAVE));
+    
+    /**
+     * 光影区：已经使用的灯光
+     */
+    private final Pane lightPanel = new VBox();
+    
+    /**
+     * 光影区：光影
+     */
+    private final Pane shadowPanel = new VBox();
+    
+    /**
+     * 组件属性区
+     */
+    private final Pane componentPropPanel = new VBox();
     
     public JfxSimpleEdit() {
        // layout.setLeft(propertyZone);
@@ -175,14 +194,29 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
         tabPane.getTabs().add(tab3);
         tabPane.getTabs().add(tab2);
         
+        // 模型：已使用模型，模型对应属性
         Pane mPane = new VBox(); 
         propertyZone.prefHeightProperty().bind(tabPane.heightProperty().divide(2));
         editPanel.prefHeightProperty().bind(tabPane.heightProperty().divide(2));
         mPane.getChildren().addAll(propertyZone, editPanel);
         tab1.setContent(mPane);
         
-        tab2.setContent(componetZone);
-        tab3.setContent(componetLightZone);
+        // 组件区
+        Pane cPane = new VBox();
+        cPane.getChildren().add(componetZone);
+        cPane.getChildren().add(componentPropPanel);
+        tab2.setContent(cPane);
+        
+        // 光影：光源系统，已使用光源，阴影设置
+        Pane lPane = new VBox();
+        tab3.setContent(lPane);
+        
+        // 光源系统
+        lPane.getChildren().add(componetLightZone);
+        // 已使用光源
+        lPane.getChildren().add(lightPanel);        
+        // 阴影
+        lPane.getChildren().add(shadowPanel);
         
         return tabPane;
     }
@@ -319,4 +353,29 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
      * @param e 
      */
     protected abstract void onDragDropped(DragEvent e);
+
+
+    
+	/**
+	 * 获得组件阴影区
+	 * @return
+	 */
+	public Pane getShadowPanel() {
+		return shadowPanel;
+	}
+
+	/**
+	 * 获得组件属性区
+	 * @return
+	 */
+	public Pane getComponentPropPanel() {
+		return componentPropPanel;
+	}
+
+    /**
+     * 获得组件光区
+     */
+	public Pane getLightPanel() {
+		return lightPanel;
+	}
 }

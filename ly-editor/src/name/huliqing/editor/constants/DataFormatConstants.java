@@ -19,6 +19,8 @@
  */
 package name.huliqing.editor.constants;
 
+import java.text.DecimalFormat;
+
 import javafx.scene.input.DataFormat;
 
 /**
@@ -28,4 +30,6 @@ import javafx.scene.input.DataFormat;
 public class DataFormatConstants {
     
     public final static DataFormat COMPONENT_ENTITY = new DataFormat("component/entity");
+    
+    public final static DecimalFormat DECIMAL_FORMAT_2 =new DecimalFormat("#.00");
 }

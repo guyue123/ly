@@ -55,5 +55,10 @@ public class FieldDefine {
     public Map<String, Feature> getFeatures() {
         return features;
     }
+
+	@Override
+	public String toString() {
+		return "FieldDefine [attributes=" + attributes + ", features=" + features + "]";
+	}
     
 }

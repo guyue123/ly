@@ -23,20 +23,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import name.huliqing.editor.component.ComponentConverter;
 import name.huliqing.editor.component.ComponentDefine;
 import name.huliqing.editor.edit.JfxEdit;
 import name.huliqing.luoying.utils.FileUtils;
 import name.huliqing.luoying.xml.XmlUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * 组件管理。
@@ -83,7 +87,15 @@ public class ComponentManager {
             String type = cEle.getAttribute("type");
             String icon = cEle.getAttribute("icon");
             String converterClass = cEle.getAttribute("converterClass");
-            addComponentDefine(new ComponentDefine(id, type, icon, converterClass));
+            
+            String name = cEle.getAttribute("name");
+            String cid = cEle.getAttribute("cid");
+            String cname = cEle.getAttribute("cname");
+            String desc = cEle.getAttribute("desc");
+            String path = cEle.getAttribute("path");
+            String tid = cEle.getAttribute("tid");
+            
+            addComponentDefine(new ComponentDefine(id, type, icon, converterClass, name, cid, cname, desc, path, tid));
         }
     }
     
@@ -161,6 +173,57 @@ public class ComponentManager {
      */
     public final static List<ComponentDefine> getComponentsByType(String componentType) {
         return COMPONENT_DEFINES.get(componentType);
+    }
+    
+    /**
+     * 跟据类型和ID查询组件
+     * @param componentType 组件类型
+     * @return 
+     */
+    public final static ComponentDefine getComponentsByTypeId(String componentType, String id) {
+    	List<ComponentDefine> cds = COMPONENT_DEFINES.get(componentType);
+    	if (cds == null || cds.isEmpty()) {
+    		return null;
+    	}
+    	
+    	for (ComponentDefine cd : cds) {
+    		if (id.equals(cd.getId())) {
+    			return cd;
+    		}
+    	}
+    	
+    	return null;
+    }
+    
+    /**
+     * 跟据ID查询组件
+     * @param componentType 组件类型
+     * @return 
+     */
+    public final static ComponentDefine getComponentsById(String id) {
+    	Iterator<String> it = COMPONENT_DEFINES.keySet().iterator();
+    	while (it.hasNext()) {
+    		ComponentDefine cd = getComponentsByTypeId(it.next(), id);
+    		if (cd != null) {
+    			return cd;
+    		}
+    	}
+    	
+    	return null;
+    }
+    
+    /**
+     * 通过实体对象ID获得组件定义名称
+     * @param eid
+     * @return
+     */
+    public static String getComponentDefineName(String eid) {
+        ComponentDefine cd = getComponentsById(eid);
+        if (cd != null && cd.getName() != null && !"".equals(cd.getName().trim())) {
+        	return cd.getName();	
+        } 
+        
+        return null;
     }
     
     // remove20170218

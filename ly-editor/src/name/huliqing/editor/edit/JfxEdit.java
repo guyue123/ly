@@ -104,6 +104,28 @@ public interface JfxEdit<T extends JmeEdit> {
      */
     Pane getPropertyPanel();
     
+    /**
+     * 属性编辑区
+     * @return
+     */
     Pane getEditPanel();
+    
+    /**
+     * 阴影面板
+     * @return
+     */
+    Pane getShadowPanel();
+    
+    /**
+     * 组件属性
+     * @return
+     */
+    Pane getComponentPropPanel();
+    
+    /**
+     * 光面板
+     * @return
+     */
+    Pane getLightPanel();
     
 }

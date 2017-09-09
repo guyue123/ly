@@ -39,7 +39,11 @@ public class CheckBoxConverter extends SimpleFieldConverter {
         checkBox.selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
             updateAndSave(newValue);
         });
-        root.setContent(checkBox);
+        //root.setContent(checkBox);
+        
+        if (!root.getChildren().contains(checkBox)) {
+        	root.getChildren().add(checkBox);
+        }
     }
     
     @Override

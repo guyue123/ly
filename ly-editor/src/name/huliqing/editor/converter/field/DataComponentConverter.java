@@ -84,7 +84,7 @@ public class DataComponentConverter extends SimpleFieldConverter {
         componentList.getListView().setOnMouseClicked(e -> {
             ComponentDefine cd = componentList.getListView().getSelectionModel().getSelectedItem();
             if (cd != null) {
-                input.setText(cd.getId());
+                input.setText(cd.getName());
                 updateChangedAndSave();
             }
             componentList.hide();

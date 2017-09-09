@@ -20,9 +20,11 @@
 package name.huliqing.editor.converter.field;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -44,15 +46,16 @@ import javafx.util.Callback;
 import name.huliqing.editor.component.ComponentDefine;
 import name.huliqing.editor.constants.AssetConstants;
 import name.huliqing.editor.constants.ComponentConstants;
+import name.huliqing.editor.constants.EntityConstants;
 import name.huliqing.editor.constants.StyleConstants;
 import name.huliqing.editor.converter.DataConverter;
 import name.huliqing.editor.converter.FieldConverter;
 import name.huliqing.editor.edit.Mode;
 import name.huliqing.editor.edit.UndoRedo;
 import name.huliqing.editor.edit.controls.ControlTile;
+import name.huliqing.editor.edit.controls.entity.EntityControlTile;
 import name.huliqing.editor.edit.scene.JfxSceneEdit;
 import name.huliqing.editor.edit.scene.JfxSceneEditListener;
-import name.huliqing.editor.edit.controls.entity.EntityControlTile;
 import name.huliqing.editor.edit.scene.SceneEdit;
 import name.huliqing.editor.manager.ComponentManager;
 import name.huliqing.editor.manager.ConverterManager;
@@ -80,6 +83,23 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
     private DataConverter dataConverter;
     private final ComponentSearch<ComponentDefine> componentSearch = new ComponentSearch(ComponentManager.getComponentsByType(ComponentConstants.ENTITY));
     
+    private final List<EntityData> lightEntityDatas = new ArrayList<>(); 
+    
+    /**
+     * 实体模型
+     */
+    private static List<String> entityTypes = new ArrayList<>(Arrays.asList(EntityConstants.ENTITY_SIMPLE_MODEL));
+    
+    /**
+     * 光源：太阳光和灯光
+     */
+    private static List<String> entityLightTypes = new ArrayList<>(Arrays.asList(EntityConstants.ENTITY_DIRECTIONAL_LIGHT, EntityConstants.ENTITY_POINT_LIGHT));
+    
+    /**
+     * 光源：太阳光和灯光
+     */
+    private static List<String> entityShadowTypes = new ArrayList<>(Arrays.asList(EntityConstants.ENTITY_FXAA_FILTER, EntityConstants.ENTITY_DIRECTIONAL_LIGHTSHADOW_FILTER));
+    
     public SceneEntitiesConverter() {
         // 工具栏
         Button add = new Button("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_ADD));
@@ -88,8 +108,55 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
         add.setOnAction(e -> {
             componentSearch.show(add, -10, -10);
         });
-        remove.setOnAction(e -> {
-            List<EntityData> eds = filterListView.listView.getSelectionModel().getSelectedItems();
+        removeAction(remove, filterListView.listView);
+        multSelected(multSelect, filterListView.listView);
+        // 实例模型
+        initProp(filterListView.listView);
+
+        componentSearch.getListView().setOnMouseClicked(e -> {
+            ComponentDefine cd = componentSearch.getListView().getSelectionModel().getSelectedItem();
+            if (cd != null) {
+                ComponentManager.createComponent(cd, jfxEdit);
+                componentSearch.hide();
+            }
+        });
+        
+        layout.getStyleClass().add(StyleConstants.CLASS_HVBOX);
+        toolBar.getItems().addAll(add, remove, multSelect);
+        layout.getChildren().addAll(toolBar, filterListView);
+    }
+
+    /**
+     * 设置参数，响应
+     * @param listView
+     */
+	private void initProp(ListView<EntityData> listView) {
+		// 列表
+        listView.setCellFactory(new CellInner());
+        listView.getSelectionModel().selectedItemProperty().addListener(this::onJfxSelectChanged);
+	}
+
+    /**
+     * 多选开关
+     * @param multSelect
+     */
+	private void multSelected(ToggleButton multSelect, ListView<EntityData> listView) {
+		multSelect.selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+            if (newValue) {
+            	listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            } else {
+            	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            }
+        });
+	}
+
+    /**
+     * 删除操作
+     * @param remove
+     */
+	private void removeAction(Button remove, ListView<EntityData> listView) {
+		remove.setOnAction(e -> {
+            List<EntityData> eds = listView.getSelectionModel().getSelectedItems();
             if (eds == null || eds.isEmpty())
                 return;
             
@@ -112,30 +179,7 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
 //                });
             });
         });
-        multSelect.selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
-            if (newValue) {
-                filterListView.listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-            } else {
-                filterListView.listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            }
-        });
-        
-        componentSearch.getListView().setOnMouseClicked(e -> {
-            ComponentDefine cd = componentSearch.getListView().getSelectionModel().getSelectedItem();
-            if (cd != null) {
-                ComponentManager.createComponent(cd, jfxEdit);
-                componentSearch.hide();
-            }
-        });
-        
-        // 列表
-        filterListView.listView.setCellFactory(new CellInner());
-        filterListView.listView.getSelectionModel().selectedItemProperty().addListener(this::onJfxSelectChanged);
-        
-        layout.getStyleClass().add(StyleConstants.CLASS_HVBOX);
-        toolBar.getItems().addAll(add, remove, multSelect);
-        layout.getChildren().addAll(toolBar, filterListView);
-    }
+	}
         
     @Override
     protected Node createLayout() {
@@ -145,6 +189,7 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
     @Override
     public void notifyChanged() {
         filterListView.listView.refresh();// 这一句允许刷新列表中的物体名称。
+        
         super.notifyChanged();
     }
     
@@ -186,12 +231,31 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
 
     @Override
     public void onEntityAdded(EntityData entityData) {
-        filterListView.listView.getItems().add(entityData);
+    	if (entityTypes.contains(entityData.getTagName())) {
+    		filterListView.listView.getItems().add(entityData);
+    	} else if (entityLightTypes.contains(entityData.getTagName())) {
+    		lightEntityDatas.add(entityData);
+    		
+    		DataConverter dc = initDataConverter(entityData);
+            String cdName = ComponentManager.getComponentDefineName(entityData.getId()); 
+            if (cdName == null || "".equals(cdName)) {
+            	cdName = entityData.getId();
+            }
+            dc.initialize();
+            
+            getParent().setLightPane(cdName, dc);
+            
+    	} else if (entityShadowTypes.contains(entityData.getTagName())) {
+    		
+    	}
     }
 
     @Override
     public void onEntityRemoved(EntityData ed) {
         filterListView.listView.getItems().remove(ed);
+        
+        lightEntityDatas.remove(ed);
+        
         entityConverterMaps.remove(ed);
     }
 
@@ -211,6 +275,7 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
         EntityData ed = ((EntityControlTile)selectObj).getTarget().getData();
         filterListView.listView.getSelectionModel().select(ed);
         doUpdateEntityView(ed);
+        
         ignoreSelectEvent = false;
     }
     
@@ -219,18 +284,37 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
             return;
         }
         
-        DataConverter dc = entityConverterMaps.get(entityData);
-        if (dc == null) {
-            dc = ConverterManager.createDataConverter(jfxEdit, entityData, this);
-            entityConverterMaps.put(entityData, dc);
+        if (!entityTypes.contains(entityData.getTagName())) {
+        	return;
         }
+        
+        DataConverter dc = initDataConverter(entityData);
         if (dataConverter != null) {
             dataConverter.cleanup();
         }
         dataConverter = dc;
         dataConverter.initialize();
-        getParent().setChildLayout(entityData.getId(), dataConverter);
+        
+        String cdName = ComponentManager.getComponentDefineName(entityData.getId()); 
+        if (cdName == null || "".equals(cdName)) {
+        	cdName = entityData.getId();
+        }
+        getParent().setChildLayout(cdName, dataConverter);
     }
+
+    /**
+     * 初始化转换器并添加到容器
+     * @param entityData
+     * @return
+     */
+	private DataConverter initDataConverter(EntityData entityData) {
+		DataConverter dc = entityConverterMaps.get(entityData);
+        if (dc == null) {
+            dc = ConverterManager.createDataConverter(jfxEdit, entityData, this);
+            entityConverterMaps.put(entityData, dc);
+        }
+		return dc;
+	}
 
     @Override
     public void updateView() {
@@ -263,10 +347,15 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
         private final EntityData entityData;
         public ListCellRow(EntityData item) {
             entityData = item;
-            String nameStr = item.getId();
-            if (item.getName() != null && !item.getName().isEmpty()) {
-                nameStr += "(" + item.getName() + ")";
+            String nameStr = ComponentManager.getComponentDefineName(item.getId());
+            
+            if (nameStr == null || "".equals(nameStr)) {
+	            nameStr =item.getId();
+	            if (item.getName() != null && !item.getName().isEmpty()) {
+	                nameStr += "(" + item.getName() + ")";
+	            }
             }
+            
             nameLabel.setText(nameStr);
             nameLabel.setAlignment(Pos.CENTER_LEFT);
             enableBtn.setSelected(item.getAsBoolean("enabled", true));
@@ -322,29 +411,39 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
         private final List<EntityData> tempList = new ArrayList();
         
         public FilterListView() {
-            imageView.setPadding(new Insets(0, 0, 0, 10));
-            imageView.setMinWidth(16);
-            imageView.setMaxWidth(16);
-            imageView.prefHeightProperty().bind(filterPane.heightProperty());
-            imageView.setAlignment(Pos.CENTER);
-            inputFilter.prefWidthProperty().bind(filterPane.widthProperty());
-            inputFilter.prefHeightProperty().bind(filterPane.heightProperty());
-            inputFilter.setPadding(new Insets(0, 0, 0, 25));
-            filterPane.setMinHeight(25);
-            filterPane.setAlignment(Pos.CENTER_LEFT);
-            
-            filterPane.getChildren().add(inputFilter);
-            filterPane.getChildren().add(imageView);
-            getChildren().add(filterPane);
-            getChildren().add(listView);
-            
-            inputFilter.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-                updateList();
-            });
-            
-            listView.setStyle(StyleConstants.CSS_CORNER_ROUND_BOTTOM);
-            inputFilter.setStyle(StyleConstants.CSS_CORNER_ROUND_TOP);
+        	init(true);
         }
+        
+        public FilterListView(boolean needSearch) {
+        	init(needSearch);
+        }
+
+		private void init(boolean needSearch) {
+			if (needSearch) {
+	            imageView.setPadding(new Insets(0, 0, 0, 10));
+	            imageView.setMinWidth(16);
+	            imageView.setMaxWidth(16);
+	            imageView.prefHeightProperty().bind(filterPane.heightProperty());
+	            imageView.setAlignment(Pos.CENTER);
+	            inputFilter.prefWidthProperty().bind(filterPane.widthProperty());
+	            inputFilter.prefHeightProperty().bind(filterPane.heightProperty());
+	            inputFilter.setPadding(new Insets(0, 0, 0, 25));
+	            filterPane.setMinHeight(25);
+	            filterPane.setAlignment(Pos.CENTER_LEFT);
+	            
+	            filterPane.getChildren().add(inputFilter);
+	            filterPane.getChildren().add(imageView);
+	            getChildren().add(filterPane);
+	            
+	            inputFilter.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+	                updateList();
+	            });
+	            inputFilter.setStyle(StyleConstants.CSS_CORNER_ROUND_TOP);
+        	}
+        	
+        	getChildren().add(listView);
+            listView.setStyle(StyleConstants.CSS_CORNER_ROUND_BOTTOM);
+		}
         
         public void updateList() {
             Scene scene = jfxEdit.getJmeEdit().getScene();
@@ -356,7 +455,12 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
             tempList.clear();
             listView.getItems().clear();
             
-            List<Entity> entities = scene.getEntities();
+            // 2017/08/17 只显示实体模型        
+            List<Entity> entities = scene.getEntities(entityTypes);
+            if (entities == null) {
+            	return;
+            }
+            
             String filterText = inputFilter.getText().trim().toLowerCase();
             // 无任何过滤
             if (filterText.isEmpty()) {
@@ -379,6 +483,13 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
                 if (e.getData().getName() != null) {
                     entityStr += "(" + e.getData().getName() + ")";
                 }
+                
+                // 组件定义
+                String cdName = ComponentManager.getComponentDefineName(e.getData().getId());
+                if (cdName != null && !"".equals(cdName)) {
+                	entityStr += "(" + cdName + ")";
+                }
+                
                 for (String filter : filters) {
                     if (!filter.isEmpty() && entityStr.toLowerCase().contains(filter)) {
                         tempList.add(e.getData());

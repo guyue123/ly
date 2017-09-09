@@ -21,8 +21,8 @@ package name.huliqing.editor.converter;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import name.huliqing.editor.edit.JfxAbstractEdit;
 import name.huliqing.luoying.xml.ObjectData;
 
@@ -41,10 +41,13 @@ public abstract class FieldConverter<E extends JfxAbstractEdit, T extends Object
     /** 让字段折叠 */
     public final static String FEATURE_COLLAPSED = "collapsed";
     
+    /** 是否显示 */
+    public final static String FEATURE_DISPLAY = "display";
+    
     // 转换的字段
     protected String field;
     
-    protected final TitledPane root = new TitledPane();
+    protected final VBox root = new VBox();
     
     public String getField() {
         return field;
@@ -67,8 +70,8 @@ public abstract class FieldConverter<E extends JfxAbstractEdit, T extends Object
     @Override
     public void initialize() {
         super.initialize();
-        root.setText(field);
-        root.setAnimated(false);
+       /* root.setText(field);
+        root.setAnimated(false);*/
         root.setAlignment(Pos.CENTER_LEFT);
         
         // features
@@ -78,13 +81,18 @@ public abstract class FieldConverter<E extends JfxAbstractEdit, T extends Object
         // Layout and features
         Node layout = createLayout();
         layout.setDisable(disabled);
-        root.setExpanded(!collapsed);
-        root.setContent(layout);
+        /*root.setExpanded(!collapsed);
+        root.setContent(layout);*/
+        
+        if (!root.getChildren().contains(layout)) {
+        	root.getChildren().add(layout);
+        }
     }
 
     @Override
     public void cleanup() { 
-        root.setContent(null);
+        //root.setContent(null);
+    	root.getChildren().clear();
         super.cleanup();
     }
     
