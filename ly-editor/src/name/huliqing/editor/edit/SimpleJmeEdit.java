@@ -80,7 +80,9 @@ public abstract class SimpleJmeEdit<T extends ControlTile> extends JmeAbstractEd
      */
     public void setSelected(T selectObj) {
         this.selectObj = selectObj;
-        editFormListeners.forEach(l -> {l.onSelected(selectObj);});
+        editFormListeners.forEach(l -> {
+        	l.onSelected(selectObj);
+        });
     }
     
     /**

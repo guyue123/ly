@@ -24,7 +24,10 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SafeArrayList;
+
+import name.huliqing.editor.constants.EntityConstants;
 import name.huliqing.editor.edit.JmeEdit;
+import name.huliqing.editor.edit.controls.entity.EntityControlTile;
 import name.huliqing.luoying.manager.PickManager;
 
 /**
@@ -43,7 +46,7 @@ public abstract class ControlTile<T, E extends JmeEdit> {
     protected final SafeArrayList<ControlTile> children = new SafeArrayList<>(ControlTile.class);
     protected boolean initialized;
     // 2017/07/20 对象能否被选中 
-    private   boolean canBeSelected = false;
+    protected boolean canBeSelected = false;
     
     protected T target;
     
@@ -140,6 +143,23 @@ public abstract class ControlTile<T, E extends JmeEdit> {
             return null;
         }
         return PickManager.distanceOfPick(ray, cs);
+    }
+    
+    /**
+     * 确定哪些模型是可以选择的
+     * @param selectObj
+     * @return
+     */
+    public static boolean canBeSelectedModel(ControlTile selectObj) {
+    	// 只有实体模型和灯光可以移动
+    	if (selectObj instanceof EntityControlTile) {
+    		if (EntityConstants.ENTITY_SIMPLE_MODEL.equals(((EntityControlTile)selectObj).getTarget().getData().getTagName()) ||
+    				EntityConstants.ENTITY_POINT_LIGHT.equals(((EntityControlTile)selectObj).getTarget().getData().getTagName())) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
     }
     
     /**
