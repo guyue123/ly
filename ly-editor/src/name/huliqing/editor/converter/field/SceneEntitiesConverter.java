@@ -25,21 +25,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToolBar;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
@@ -73,7 +74,7 @@ import name.huliqing.luoying.object.scene.Scene;
 public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityData> implements JfxSceneEditListener {
 
     private final VBox layout = new VBox();
-    private final ToolBar toolBar = new ToolBar();
+   // private final ToolBar toolBar = new ToolBar();
     
     private final FilterListView filterListView = new FilterListView();
     private boolean ignoreSelectEvent;
@@ -102,14 +103,14 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
     
     public SceneEntitiesConverter() {
         // 工具栏
-        Button add = new Button("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_ADD));
-        Button remove = new Button("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_SUBTRACT));
-        ToggleButton multSelect = new ToggleButton("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_MULT_SELECT));
-        add.setOnAction(e -> {
+        //Button add = new Button("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_ADD));
+        //Button remove = new Button("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_SUBTRACT));
+       // ToggleButton multSelect = new ToggleButton("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_MULT_SELECT));
+/*        add.setOnAction(e -> {
             componentSearch.show(add, -10, -10);
-        });
-        removeAction(remove, filterListView.listView);
-        multSelected(multSelect, filterListView.listView);
+        });*/
+        //removeAction(remove, filterListView.listView);
+       // multSelected(multSelect, filterListView.listView);
         // 实例模型
         initProp(filterListView.listView);
 
@@ -122,17 +123,52 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
         });
         
         layout.getStyleClass().add(StyleConstants.CLASS_HVBOX);
-        toolBar.getItems().addAll(add, remove, multSelect);
-        layout.getChildren().addAll(toolBar, filterListView);
+        //toolBar.getItems().addAll(remove);
+        layout.getChildren().addAll(filterListView);
     }
 
     /**
      * 设置参数，响应
      * @param listView
      */
-	private void initProp(ListView<EntityData> listView) {
+	@SuppressWarnings("unchecked")
+	private void initProp(TableView<EntityData> listView) {
 		// 列表
-        listView.setCellFactory(new CellInner());
+        //listView.setCellFactory(new CellInner());
+		TableColumn<EntityData, String> iconCol = new TableColumn<>("图片");
+        iconCol.setMinWidth(60);
+        iconCol.setMaxWidth(60);
+        iconCol.setCellValueFactory(new CellInner("icon"));
+ 
+        TableColumn<EntityData, String> idCol = new TableColumn<>("编号");
+        idCol.setMinWidth(90);
+        idCol.setCellValueFactory(new CellInner("id"));
+ 
+        TableColumn<EntityData, String> nameCol = new TableColumn<>("名称");
+        nameCol.setMinWidth(160);
+        nameCol.setCellValueFactory(new CellInner("name"));
+        
+       /* TableColumn<EntityData, String> catCol = new TableColumn<>("分类");
+        catCol.setMinWidth(60);
+        catCol.setCellValueFactory(new CellInner("catName"));*/
+        
+        TableColumn<EntityData, EntityData> actionCol = new TableColumn<>("显示");
+        actionCol.setMinWidth(43);
+        actionCol.setMaxWidth(43);
+        actionCol.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue()));
+        actionCol.setCellFactory(new CellActionInner("displayHidden"));
+        
+        TableColumn<EntityData, EntityData> removeCol = new TableColumn<>("删除");
+        removeCol.setMinWidth(43);
+        removeCol.setMaxWidth(43);
+        removeCol.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue()));
+        removeCol.setCellFactory(new CellActionInner("remove"));
+        
+        listView.setEditable(false);
+        listView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        //listView.setItems(data);
+        listView.getColumns().addAll(iconCol, idCol, nameCol, actionCol, removeCol);
+		
         listView.getSelectionModel().selectedItemProperty().addListener(this::onJfxSelectChanged);
 	}
 
@@ -140,7 +176,7 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
      * 多选开关
      * @param multSelect
      */
-	private void multSelected(ToggleButton multSelect, ListView<EntityData> listView) {
+	private void multSelected(ToggleButton multSelect, TableView<EntityData> listView) {
 		multSelect.selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
             if (newValue) {
             	listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -154,11 +190,13 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
      * 删除操作
      * @param remove
      */
-	private void removeAction(Button remove, ListView<EntityData> listView) {
+	private void removeAction(Button remove, TableView<EntityData> listView) {
 		remove.setOnAction(e -> {
             List<EntityData> eds = listView.getSelectionModel().getSelectedItems();
             if (eds == null || eds.isEmpty())
                 return;
+            
+            //listView.getItems().removeAll(eds);
             
             Jfx.runOnJme(() -> {
                 List<EntityControlTile> ectsRemove = new ArrayList(eds.size());
@@ -321,61 +359,175 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
         // ignore
     }
 
-    private class CellInner implements Callback<ListView<EntityData>, ListCell<EntityData>> {
-
+    private class CellInner implements Callback<CellDataFeatures<EntityData, String>, ObservableValue<String>> {
+    	private String cellName;
+    	
+    	public CellInner(String fieldName) {
+    		this.cellName = fieldName;
+    	}
+    	
         @Override
-        public ListCell<EntityData> call(ListView<EntityData> param) {
-            ListCell<EntityData> lc = new ListCell<EntityData>() {
-                @Override
-                protected void updateItem(EntityData item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(null);
-                    setGraphic(null);
-                    if (!empty && item != null) {
-                        setGraphic(new ListCellRow(item));
-                    }
-                    
-                }
-            };
-            return lc;
+        public ObservableValue<String> call(CellDataFeatures<EntityData, String> param) {
+        	EntityData item = param.getValue();
+        	String nameStr = "";
+        	ComponentDefine cd = ComponentManager.getComponentsById(item.getId());
+            if ("id".equals(cellName)) {
+            	nameStr = cd.getId();
+            } else if ("name".equals(cellName)) {
+	            nameStr = cd.getName();
+	            if (nameStr == null || "".equals(nameStr)) {
+		            nameStr =item.getId();
+		            if (item.getName() != null && !item.getName().isEmpty()) {
+		                nameStr += "(" + item.getName() + ")";
+		            }
+	            }
+            } else if ("catName".equals(cellName)) {
+            	nameStr = cd.getCname();
+            } else if ("icon".equals(cellName)) {
+            	nameStr = cd.getIcon();
+            }
+        	
+            return new SimpleStringProperty(nameStr);
         }
     }
     
-    private class ListCellRow extends GridPane {
+    private class CellActionInner implements Callback<TableColumn<EntityData, EntityData>, TableCell<EntityData, EntityData>> {
+    	private String cellName;
+    	
+    	public CellActionInner(String fieldName) {
+    		this.cellName = fieldName;
+    	}
+    	
+        @Override
+        public TableCell<EntityData, EntityData> call(TableColumn<EntityData, EntityData> param) {
+        	return new ActionCell(cellName);
+        }
+    }
+    
+    /** A table cell containing a button for adding a new person. */
+    private class ActionCell extends TableCell<EntityData, EntityData> {
+        private EntityData entityData;
+        private String cellName;
+        
+        public ActionCell(String fieldName) {
+        	this.cellName = fieldName;
+        }
+
+      /** places an add button in the row only if the row is not empty. */
+      @Override
+      protected void updateItem(EntityData item, boolean empty) {
+    	  if (empty || item == null) {
+    		  return;
+    	  }
+    	  
+    	  entityData = item;
+    	  super.updateItem(item, empty);
+    	  
+    	  if ("displayHidden".equals(cellName)) {
+    		  ToggleButton enableBtn = new ToggleButton("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_EYE));
+	          enableBtn.setSelected(entityData.getAsBoolean("enabled", true));
+	          enableBtn.setAlignment(Pos.CENTER_RIGHT);
+	          enableBtn.setPrefWidth(16);
+	          enableBtn.selectedProperty().addListener((ObservableValue<? extends Boolean> ob, Boolean oldValue, Boolean newValue) -> {
+	              Scene scene = jfxEdit.getJmeEdit().getScene();
+	              if (scene == null)
+	                  return;
+	              Jfx.runOnJme(() -> {
+	                  Entity entity = scene.getEntity(entityData.getUniqueId());
+	                  if (entity != null) {
+	                      entity.setEnabled(newValue);
+	                  }
+	              });
+	          });
+	          
+	          this.setGraphic(enableBtn);
+    	  }
+          
+    	  if ("remove".equals(cellName)) {
+    		  Button removeBtn = new Button("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_SUBTRACT));
+	          removeBtn.setOnAction(c -> {
+	              Scene scene = jfxEdit.getJmeEdit().getScene();
+	              if (scene == null)
+	                  return;
+	              
+	              Jfx.runOnJme(() -> {
+	            	  EntityData currentData = (EntityData) ActionCell.this.getTableView().getItems().get(ActionCell.this.getIndex());
+	            	  
+	            	  int index = this.indexProperty().get();
+	            	  
+	                  List<EntityControlTile> ectsRemove = new ArrayList(1);
+	                  SceneEdit se = jfxEdit.getJmeEdit();
+	                  EntityControlTile ect = se.getEntityControlTile(currentData);
+	                  if (ect != null) {
+	                      ectsRemove.add(ect);
+	                  }
+	                  ectsRemove.add(ect);
+	                  EntityRemovedUndoRedo erur = new EntityRemovedUndoRedo(ectsRemove);
+	                  erur.redo();
+	                  se.addUndoRedo(erur);
+	                  
+	                  // 这一步不需要，因为已经做了监听场景实体移除的功能,当场景实体移除的时候会自动触发onEntityRemoved方法
+	//                  Jfx.runOnJfx(() -> {
+	//                      listView.getItems().removeAll(eds);
+	//                  });
+	                  // 刷新，将行删除
+	                  ActionCell.this.getTableView().refresh();
+	              });
+	          });
+	          
+	          this.setGraphic(removeBtn);
+    	  }
+      }
+    }
+    
+    private class ListCellRow extends HBox {
+    	private String fieldName;
         private final Label nameLabel = new Label("");
         private final ToggleButton enableBtn = new ToggleButton("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_EYE));
         private final EntityData entityData;
-        public ListCellRow(EntityData item) {
-            entityData = item;
-            String nameStr = ComponentManager.getComponentDefineName(item.getId());
+        public ListCellRow(EntityData item, String fieldName) {
+            this.entityData = item;
+            this.fieldName = fieldName;
             
-            if (nameStr == null || "".equals(nameStr)) {
-	            nameStr =item.getId();
-	            if (item.getName() != null && !item.getName().isEmpty()) {
-	                nameStr += "(" + item.getName() + ")";
+            String nameStr = "";
+            if ("id".equals(fieldName)) {
+	            nameStr = ComponentManager.getComponentDefineName(item.getId());
+	            if (nameStr == null || "".equals(nameStr)) {
+		            nameStr =item.getId();
+		            if (item.getName() != null && !item.getName().isEmpty()) {
+		                nameStr += "(" + item.getName() + ")";
+		            }
 	            }
-            }
-            
-            nameLabel.setText(nameStr);
-            nameLabel.setAlignment(Pos.CENTER_LEFT);
-            enableBtn.setSelected(item.getAsBoolean("enabled", true));
-            enableBtn.setAlignment(Pos.CENTER_RIGHT);
-            enableBtn.setPrefWidth(16);
-            enableBtn.selectedProperty().addListener((ObservableValue<? extends Boolean> ob, Boolean oldValue, Boolean newValue) -> {
-                Scene scene = jfxEdit.getJmeEdit().getScene();
-                if (scene == null)
-                    return;
-                Jfx.runOnJme(() -> {
-                    Entity entity = scene.getEntity(entityData.getUniqueId());
-                    if (entity != null) {
-                        entity.setEnabled(newValue);
-                    }
+	            nameLabel.setText(nameStr);
+	            nameLabel.setAlignment(Pos.CENTER_LEFT);
+            } else if ("name".equals(fieldName)) {
+            	nameStr = item.getAsString(fieldName);
+                nameLabel.setText(nameStr);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+            } else if ("icon".equals(fieldName)) {
+            	nameStr = item.getAsString(fieldName);
+                nameLabel.setText(nameStr);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+            } else if ("action".equals(fieldName)) {
+                enableBtn.setSelected(item.getAsBoolean("enabled", true));
+                enableBtn.setAlignment(Pos.CENTER_RIGHT);
+                enableBtn.setPrefWidth(16);
+                enableBtn.selectedProperty().addListener((ObservableValue<? extends Boolean> ob, Boolean oldValue, Boolean newValue) -> {
+                    Scene scene = jfxEdit.getJmeEdit().getScene();
+                    if (scene == null)
+                        return;
+                    Jfx.runOnJme(() -> {
+                        Entity entity = scene.getEntity(entityData.getUniqueId());
+                        if (entity != null) {
+                            entity.setEnabled(newValue);
+                        }
+                    });
                 });
-            });
-            setAlignment(Pos.CENTER_LEFT);
+            }
+/*            setAlignment(Pos.CENTER_LEFT);
             addRow(0, nameLabel, enableBtn);
             GridPane.setHgrow(nameLabel, Priority.ALWAYS);
-            GridPane.setHgrow(enableBtn, Priority.NEVER);
+            GridPane.setHgrow(enableBtn, Priority.NEVER);*/
         }
     }
     
@@ -407,7 +559,7 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
         private final HBox imageView = new HBox(JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_SEARCH));
         private final TextField inputFilter = new TextField();
         
-        private final ListView<EntityData> listView = new ListView();
+        private final TableView<EntityData> listView = new TableView();
         private final List<EntityData> tempList = new ArrayList();
         
         public FilterListView() {
