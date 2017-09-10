@@ -23,15 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.util.Callback;
 import name.huliqing.editor.component.ComponentDefine;
 import name.huliqing.editor.constants.ComponentConstants;
 import name.huliqing.editor.constants.ConfigConstants;
@@ -47,7 +50,7 @@ import name.huliqing.luoying.xml.Proto;
  *
  * @author huliqing
  */
-public class ComponentsForm extends ListView<ComponentDefine> implements ConfigChangedListener{
+public class ComponentsForm extends TableView<ComponentDefine> implements ConfigChangedListener{
     private static final Logger LOG = Logger.getLogger(ComponentsForm.class.getName());
     
     private List<String> componentTypes;
@@ -62,7 +65,7 @@ public class ComponentsForm extends ListView<ComponentDefine> implements ConfigC
     }
 
 	private void init() {
-		setCellFactory((ListView<ComponentDefine> param) -> new ListCell<ComponentDefine>() {
+/*		setCellValueFactory((TableView<ComponentDefine> param) -> new ListCell<ComponentDefine>() {
             @Override
             protected void updateItem(ComponentDefine item, boolean empty) {
                 super.updateItem(item, empty);
@@ -74,8 +77,9 @@ public class ComponentsForm extends ListView<ComponentDefine> implements ConfigC
                 setText(name);
                 setGraphic(icon);
             }
-        });
-
+        });*/
+		initTable(this);
+		
         setOnDragDetected(this::doDragDetected);
         setOnDragDone(this::doDragDone);
         
@@ -84,6 +88,63 @@ public class ComponentsForm extends ListView<ComponentDefine> implements ConfigC
         // 切换资源目录的时候要重置组件面板
         Manager.getConfigManager().addListener(this);
 	}
+	
+    /**
+     * 设置参数，响应
+     * @param tableView
+     */
+	@SuppressWarnings("unchecked")
+	private void initTable(TableView<ComponentDefine> tableView) {
+		// 列表
+        //listView.setCellFactory(new CellInner());
+		TableColumn<ComponentDefine, String> iconCol = new TableColumn<>("图片");
+        iconCol.setMinWidth(60);
+        iconCol.setMaxWidth(60);
+        iconCol.setCellValueFactory(new CellInner("icon"));
+ 
+        TableColumn<ComponentDefine, String> idCol = new TableColumn<>("编号");
+        idCol.setMinWidth(90);
+        idCol.setCellValueFactory(new CellInner("id"));
+ 
+        TableColumn<ComponentDefine, String> nameCol = new TableColumn<>("名称");
+        nameCol.setMinWidth(160);
+        nameCol.setCellValueFactory(new CellInner("name"));
+        
+       /* TableColumn<ComponentDefine, String> catCol = new TableColumn<>("分类");
+        catCol.setMinWidth(60);
+        catCol.setCellValueFactory(new CellInner("catName"));*/
+        
+        tableView.setEditable(false);
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        //listView.setItems(data);
+        tableView.getColumns().addAll(iconCol, idCol, nameCol);
+	}
+	
+    private class CellInner implements Callback<CellDataFeatures<ComponentDefine, String>, ObservableValue<String>> {
+    	private String cellName;
+    	
+    	public CellInner(String fieldName) {
+    		this.cellName = fieldName;
+    	}
+    	
+        @Override
+        public ObservableValue<String> call(CellDataFeatures<ComponentDefine, String> param) {
+        	//ComponentDefine item = param.getValue();
+        	String nameStr = "";
+        	ComponentDefine cd = param.getValue();//ComponentManager.getComponentsById(item.getId());
+            if ("id".equals(cellName)) {
+            	nameStr = cd.getId();
+            } else if ("name".equals(cellName)) {
+	            nameStr = cd.getName();
+            } else if ("catName".equals(cellName)) {
+            	nameStr = cd.getCname();
+            } else if ("icon".equals(cellName)) {
+            	nameStr = cd.getIcon();
+            }
+        	
+            return new SimpleStringProperty(nameStr);
+        }
+    }
 	
 	/**
 	 * 过滤

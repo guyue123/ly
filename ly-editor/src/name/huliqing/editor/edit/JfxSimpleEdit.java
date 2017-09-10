@@ -38,6 +38,7 @@ import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.constants.StyleConstants;
 import name.huliqing.editor.manager.Manager;
 import name.huliqing.editor.toolbar.Toolbar;
+import name.huliqing.editor.ui.ComponentLightZone;
 import name.huliqing.editor.ui.ComponentZone;
 import name.huliqing.editor.ui.toolbar.JfxToolbar;
 import name.huliqing.editor.ui.toolbar.JfxToolbarFactory;
@@ -66,9 +67,13 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
     /** 资源区  实体模型*/
     public final ComponentZone componetZone = new ComponentZone(EntityConstants.ENTITY_SIMPLE_MODEL);
     
-    /** 资源区  实体模型*/
-    public final ComponentZone componetLightZone = new ComponentZone(EntityConstants.ENTITY_DIRECTIONAL_LIGHT, EntityConstants.ENTITY_POINT_LIGHT,
-    		EntityConstants.ENTITY_AMBIENT_LIGHT, EntityConstants.ENTITY_DIRECTIONAL_LIGHTSHADOW_FILTER, EntityConstants.ENTITY_FXAA_FILTER, 
+    /** 资源区  光模型：日光，灯光*/
+    public final ComponentLightZone componetLightZone = new ComponentLightZone(EntityConstants.ENTITY_DIRECTIONAL_LIGHT, EntityConstants.ENTITY_POINT_LIGHT);
+    
+    /**
+     * 资源区 阴影，环境光
+     */
+    public final ComponentZone componetShadowZone = new ComponentZone(EntityConstants.ENTITY_AMBIENT_LIGHT, EntityConstants.ENTITY_DIRECTIONAL_LIGHTSHADOW_FILTER, EntityConstants.ENTITY_FXAA_FILTER, 
     		EntityConstants.ENTITY_SSAOFILTER);
 
     
@@ -133,7 +138,7 @@ public abstract class JfxSimpleEdit<T extends JmeEdit> extends JfxAbstractEdit<T
         saveButton.setOnAction(e -> saveScene());
     }
 
-	private void setComponetProps(ComponentZone componetZone) {
+	private void setComponetProps(VBox componetZone) {
 		componetZone.setVisible(true);
         componetZone.setPadding(Insets.EMPTY);
         /*componetZone.getStyleClass().add(StyleConstants.CLASS_HVBOX);*/

@@ -23,11 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
-import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.constants.StyleConstants;
-import name.huliqing.editor.manager.Manager;
 
 /**
  *
@@ -35,7 +32,7 @@ import name.huliqing.editor.manager.Manager;
  */
 public class ComponentZone extends VBox{
     
-    private final TitledPane componentsPanel = new TitledPane();
+    private final VBox componentsPanel = new VBox();
     
     /**
      * 过滤组件
@@ -90,8 +87,9 @@ public class ComponentZone extends VBox{
 
 	private void init() {
 		ComponentsForm cv = new ComponentsForm(componentTypes);
-        componentsPanel.setContent(cv);
-        componentsPanel.setText(Manager.getRes(ResConstants.FORM_COMPONENTS_TITLE));
+        // componentsPanel.setContent(cv);
+		componentsPanel.getChildren().add(cv);
+        //componentsPanel.setText(Manager.getRes(ResConstants.FORM_COMPONENTS_TITLE));
         
         getChildren().add(componentsPanel);
         getStyleClass().add(StyleConstants.CLASS_HVBOX);
