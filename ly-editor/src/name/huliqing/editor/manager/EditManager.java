@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import javafx.util.Callback;
@@ -30,6 +31,7 @@ import name.huliqing.editor.Editor;
 import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.edit.scene.JfxSceneEdit;
 import name.huliqing.editor.edit.spatial.JfxSpatialEdit;
+import name.huliqing.editor.ui.Quit;
 import name.huliqing.fxswing.Jfx;
 import name.huliqing.luoying.data.SceneData;
 import name.huliqing.luoying.object.Loader;
@@ -93,7 +95,7 @@ public class EditManager {
             return;
         }
         Jfx.runOnJfx(() -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+/*            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.initModality(Modality.APPLICATION_MODAL);
             alert.setContentText(Manager.getRes(ResConstants.COMMON_QUICK_CONFIRM));
             Optional<ButtonType> result = alert.showAndWait();
@@ -102,6 +104,11 @@ public class EditManager {
                 return;
             }
             if (bt == ButtonType.OK) {
+                callback.call(null);
+            }*/
+        	
+        	ButtonType bt = Quit.confirmExit(editor, true);
+            if (bt.getButtonData() != ButtonBar.ButtonData.CANCEL_CLOSE) {
                 callback.call(null);
             }
         });

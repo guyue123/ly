@@ -19,11 +19,11 @@
  */
 package name.huliqing.editor.converter.field;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -158,6 +158,22 @@ public class ScaleConverter extends SimpleFieldConverter{
     }
     
     private void updateAndSave() {
+    	// 数字检查
+    	if (!isNum(xField.getText())) {
+    		xField.setText(lastX);
+    		return;
+    	}
+    	
+    	if (!isNum(yField.getText())) {
+    		xField.setText(lastY);
+    		return;
+    	}
+    	
+    	if (!isNum(zField.getText())) {
+    		xField.setText(lastZ);
+    		return;
+    	}
+    	
         boolean changed = false;
         // 缩放比例
         float ratioX = 1;
@@ -236,15 +252,15 @@ public class ScaleConverter extends SimpleFieldConverter{
             	rotate2.rotateAroundOrigin(modelRotation.getY(), true);
 
             	// 水平偏移量
-            	Vector3f globalLoc3 = new Vector3f(rotate2.getX(), 1, rotate2.getY());
+            	Vector3f globalLoc3 = new Vector3f(rotate2.getX(), 0, rotate2.getY());
             	
             	// 通过方位和水平位移移动3D模型
             	Vector3f newLocation = location.subtract(globalLoc3);
         
             	updateAttrs.put("location", newLocation);
                 super.updateMultAttibutes(updateAttrs);
-                
-                addUndoRedo(lastValue, new Vector3f(newVec));
+                // 重做/撤销
+                undoRedo(newVec, modelSize, location, newLocation);
                 lastValue = new Vector3f(newVec);
             } catch (NumberFormatException e) {
                 // 如果全为空则清除该参数
@@ -257,11 +273,56 @@ public class ScaleConverter extends SimpleFieldConverter{
         }
     }
 
+    /**
+     * 重做/撤回
+     * @param newVec
+     * @param modelSize
+     * @param location
+     * @param newLocation
+     */
+	protected void undoRedo(Vector3f newVec, Vector3f modelSize, Vector3f location, Vector3f newLocation) {
+		// 存储原始数据
+		List<Map<String, Object>> props = new ArrayList<>();
+		// 缩放比例
+		Map<String, Object> p1 = new HashMap<>();
+		p1.put("property", field);
+		p1.put("before", lastValue.divide(modelSize));
+		p1.put("after", new Vector3f(newVec).divide(modelSize));
+		// 坐标
+		Map<String, Object> p2 = new HashMap<>();
+		p2.put("property", "location");
+		p2.put("before", location);
+		p2.put("after", newLocation);
+		props.add(p1);
+		props.add(p2);
+		
+		addUndoRedo(props);
+	}
+	
+	/**
+	 * 检查输入是否为正确的数字
+	 * @param val
+	 * @return
+	 */
+	private boolean isNum(String val) {
+		try {
+			float v = Float.parseFloat(val);
+			DataFormatConstants.DECIMAL_FORMAT_2.format(v);
+			return true;
+		} catch (NumberFormatException e) {
+		}
+		
+		return false;
+	}
+
     @Override
     protected void updateUI() {
         Object propertyValue = data.getAttribute(field);
         // 存储的是比例，转换成尺寸厘米
         lastValue = Converter.getAsVector3f(propertyValue).mult(getModelSize());
+        if (lastValue == null) {
+        	lastValue = getModelSize();
+        }
         
         if (lastValue != null) {
             xField.setText(DataFormatConstants.DECIMAL_FORMAT_2.format(lastValue.x) + "");
@@ -319,6 +380,10 @@ public class ScaleConverter extends SimpleFieldConverter{
      */
     private Vector3f getModelRotation() {
     	Quaternion quaternion = ((EntityData)data).getRotation();
+    	if (quaternion == null) {
+    		return new Vector3f();
+    	}
+    	
     	 float[] temp = new float[3];
     	quaternion.toAngles(temp);
     	

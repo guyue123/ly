@@ -3,10 +3,14 @@
 common.ok=确认
 common.cancel=取消
 common.quick.confirm=编辑结果尚未保存, 确定要退出吗?
-common.quick=退出程序
+common.quick=退出软件
 common.chooser.file=选择文件
 common.create.terrain=创建地形
 common.statistics=显示统计信息
+
+common.exit.notsave=不保存退出
+common.exit.save=保存并退出
+common.exit.cancel=取消退出
 
 menu.file=文件
 menu.file.quick=退出
@@ -37,6 +41,9 @@ alert.rename.header=重命名文件：%s
 alert.delete.title=删除
 alert.delete.header.single=确定要删除文件吗？
 alert.delete.header.mult=确定要删除这 %s 项吗？
+
+model.delete=删除模型
+model.delete.confirm=确定要删除此模型？
 
 view.front=前视图
 view.back=后视图

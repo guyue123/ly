@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,7 +32,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
@@ -43,11 +47,13 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.util.Callback;
 import name.huliqing.editor.component.ComponentDefine;
 import name.huliqing.editor.constants.AssetConstants;
 import name.huliqing.editor.constants.ComponentConstants;
 import name.huliqing.editor.constants.EntityConstants;
+import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.constants.StyleConstants;
 import name.huliqing.editor.converter.DataConverter;
 import name.huliqing.editor.converter.FieldConverter;
@@ -60,6 +66,7 @@ import name.huliqing.editor.edit.scene.JfxSceneEditListener;
 import name.huliqing.editor.edit.scene.SceneEdit;
 import name.huliqing.editor.manager.ComponentManager;
 import name.huliqing.editor.manager.ConverterManager;
+import name.huliqing.editor.manager.Manager;
 import name.huliqing.editor.ui.ComponentSearch;
 import name.huliqing.editor.ui.utils.JfxUtils;
 import name.huliqing.fxswing.Jfx;
@@ -441,11 +448,22 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
 	          });
 	          
 	          this.setGraphic(enableBtn);
-    	  }
-          
-    	  if ("remove".equals(cellName)) {
+    	  } else if ("remove".equals(cellName)) {
     		  Button removeBtn = new Button("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_SUBTRACT));
 	          removeBtn.setOnAction(c -> {
+	        	  // 删除确认
+	              Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+	              alert.initModality(Modality.APPLICATION_MODAL);
+	              alert.setHeaderText(Manager.getRes(ResConstants.MODEL_DELETE));
+	              alert.setContentText(Manager.getRes(ResConstants.MODEL_DELETE_CONFIRM));
+	              
+	              Optional<ButtonType> result = alert.showAndWait();
+	              ButtonType bt = result.get();
+	              // 取消关闭
+	              if (bt.getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE) {
+	                  return;
+	              }
+	        	  
 	              Scene scene = jfxEdit.getJmeEdit().getScene();
 	              if (scene == null)
 	                  return;
@@ -477,6 +495,8 @@ public class SceneEntitiesConverter extends FieldConverter<JfxSceneEdit, EntityD
 	          
 	          this.setGraphic(removeBtn);
     	  }
+    	  
+    	  this.getTableView().refresh();
       }
     }
     

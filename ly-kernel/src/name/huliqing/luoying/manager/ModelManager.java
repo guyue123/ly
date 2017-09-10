@@ -48,6 +48,8 @@ public class ModelManager {
   public Vector3f getSize(Spatial sp) {
 	  if (sp instanceof Node) {
 		  return getSize((Node)sp);
+	  } else if (sp instanceof Geometry) {
+		  return getSize((Geometry)sp);
 	  }
 	  
 	  return null;
@@ -124,6 +126,74 @@ public class ModelManager {
       return bbox;
     }
   
+  /**
+   * Returns the size of 3D shapes of <code>node</code> after an additional <code>transformation</code>.
+   * This method computes the exact box that contains all the shapes,
+   * contrary to <code>node.getBounds()</code> that returns a bounding 
+   * sphere for a scene.
+   * @param node     the root of a model 
+   * @param transformation the transformation applied to the model  
+   *                 or <code>null</code> if no transformation should be applied to node.
+   */
+  public Vector3f getSize(Geometry node) {
+    BoundingBox bounds = getBounds(node);
+    if (bounds == null) {
+    	return null;
+    }
+    
+    Vector3f lower = new Vector3f();
+    bounds.getMin(lower);
+    Vector3f upper = new Vector3f();
+    bounds.getMax(upper);
+    return new Vector3f(Math.max(getMinimumSize(), (float)(upper.x - lower.x)), 
+        Math.max(getMinimumSize(), (float)(upper.y - lower.y)), 
+        Math.max(getMinimumSize(), (float)(upper.z - lower.z)));
+  }
+  
+  /**
+   * Returns the bounds of the 3D shapes of <code>node</code> with an additional <code>transformation</code>.
+   * This method computes the exact box that contains all the shapes, contrary to <code>node.getBounds()</code> 
+   * that returns a bounding sphere for a scene.
+   * @param node     the root of a model 
+   * @param transformation the transformation applied to the model  
+   *                 or <code>null</code> if no transformation should be applied to node.
+   */
+  public BoundingBox getBounds(Geometry node) {
+    BoundingBox objectBounds = computeBounds(node, null);
+    if (objectBounds == null) {
+    	return null;
+    }
+    
+    Vector3f lower = new Vector3f();
+    objectBounds.getMin(lower);
+    if (lower.x == Float.POSITIVE_INFINITY) {
+      throw new IllegalArgumentException("Node has no bounds");
+    }
+    return objectBounds;
+  }
+  
+  private BoundingBox computeBounds(Geometry node, BoundingBox bounds) {
+	  	return mergeBoundingBox(node, bounds);
+	  }
+  
+  /**
+   * 获得边界计算
+   * @param ge
+   * @param bbox
+   * @return
+   */
+  private BoundingBox mergeBoundingBox(Geometry ge, BoundingBox bbox) {
+      if (bbox == null) {
+    	  if (ge.getModelBound() instanceof BoundingBox) {
+    		  bbox = (BoundingBox)ge.getModelBound();
+    	  }
+      } else {
+    	  bbox.merge(ge.getModelBound());
+      }
+
+      return bbox;
+    }
+  
   
   /**
    * Returns the center vector of the model <code>node</code>
@@ -148,6 +218,28 @@ public class ModelManager {
   }
   
   /**
+   * Returns the center vector of the model <code>node</code>
+   * to let it fill a box of the given <code>width</code> centered on the origin.
+   * @param node     the root of a model with any size and location
+   */
+  public Vector3f getModelCenter(Geometry node) {
+	    // Get model bounding box size 
+	    BoundingBox modelBounds = getBounds(node);
+	    if (modelBounds == null) {
+	    	return null;
+	    }
+	    Vector3f lower = new Vector3f();
+	    modelBounds.getMin(lower);
+	    Vector3f upper = new Vector3f();
+	    modelBounds.getMax(upper);
+	    //  model center
+
+	    return new Vector3f(-(-lower.x - (upper.x - lower.x) / 2), 
+	            -(-lower.y - (upper.y - lower.y) / 2), 
+	            -(-lower.z - (upper.z - lower.z) / 2));
+  }
+  
+  /**
    * 获得模型的中心点
    * @param sp
    * @return
@@ -155,6 +247,13 @@ public class ModelManager {
   public Vector3f getModelCenter(Spatial sp) {
 	  if (sp instanceof Node) {
 		  Vector3f c = getModelCenter((Node)sp);
+		  if (c == null) {
+			  return null;
+		  }
+		  
+		  return c.mult(sp.getLocalScale());
+	  } else if (sp instanceof Geometry) {
+		  Vector3f c = getModelCenter((Geometry)sp);
 		  if (c == null) {
 			  return null;
 		  }

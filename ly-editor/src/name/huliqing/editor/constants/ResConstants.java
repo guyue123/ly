@@ -32,6 +32,14 @@ public class ResConstants {
     public final static String COMMON_CHOOSER_FILE = "common.chooser.file";
     public final static String COMMON_CREATE_TERRAIN = "common.create.terrain";
     public final static String COMMON_STATISTICS = "common.statistics";
+    public final static String COMMON_EXIT_NOTSAVE = "common.exit.notsave";
+    public final static String COMMON_EXIT_SAVE = "common.exit.save";
+    public final static String COMMON_EXIT_CANCEL = "common.exit.cancel";
+    
+    
+    public final static String MODEL_DELETE_CONFIRM = "model.delete.confirm";
+    public final static String MODEL_DELETE = "model.delete";
+    
     
     /** menu.file */
     public final static String MENU_FILE = "menu.file";

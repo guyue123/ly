@@ -19,6 +19,8 @@
  */
 package name.huliqing.editor.converter;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import name.huliqing.editor.edit.JfxAbstractEdit;
@@ -124,6 +126,15 @@ public abstract class SimpleFieldConverter<E extends JfxAbstractEdit, T extends 
     }
     
     /**
+     * 添加一个历史记录
+     * @param beforeValue 字段改变前的值
+     * @param afterValue 字段改变后的值
+     */
+    protected void addUndoRedo(List<Map<String, Object>> props) {
+        jfxEdit.addUndoRedo(new JfxEditMultiUndoRedo(props));
+    }
+    
+    /**
      * 更新UI，从data中获取属性并更新到JfxUI中
      */
     protected abstract void updateUI();
@@ -152,6 +163,38 @@ public abstract class SimpleFieldConverter<E extends JfxAbstractEdit, T extends 
         public void redo() {
             Jfx.runOnJfx(() -> {
                 parent.updateAttribute(property, after);
+                updateView();
+            });
+        }
+    }
+    
+    private class JfxEditMultiUndoRedo<T> implements UndoRedo {
+        private final List<Map<String, T>> changeProps;
+        
+        public JfxEditMultiUndoRedo(List<Map<String, T>> doMap) {
+        	this.changeProps = doMap;
+        }
+        
+        @Override
+        public void undo() {
+            Jfx.runOnJfx(() -> {
+            	Map<String, Object> attrs = new HashMap<>();
+            	for (Map<String, T> p : changeProps) {
+            		attrs.put((String)p.get("property"), p.get("before"));
+            	}
+            	parent.updateMultAttributes(attrs);
+                updateView();
+            });
+        }
+        
+        @Override
+        public void redo() {
+            Jfx.runOnJfx(() -> {
+            	Map<String, Object> attrs = new HashMap<>();
+            	for (Map<String, T> p : changeProps) {
+            		attrs.put((String)p.get("property"), p.get("after"));
+            	}
+            	parent.updateMultAttributes(attrs);
                 updateView();
             });
         }

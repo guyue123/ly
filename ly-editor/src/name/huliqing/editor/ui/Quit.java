@@ -20,7 +20,9 @@
 package name.huliqing.editor.ui;
 
 import java.util.Optional;
+
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import name.huliqing.editor.Editor;
@@ -44,18 +46,56 @@ public class Quit {
             return;
         }
         Jfx.runOnJfx(() -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.initModality(Modality.APPLICATION_MODAL);
-            alert.setHeaderText(Manager.getRes(ResConstants.COMMON_QUICK));
-            alert.setContentText(Manager.getRes(ResConstants.COMMON_QUICK_CONFIRM));
-            Optional<ButtonType> result = alert.showAndWait();
-            ButtonType bt = result.get();
-            if (bt == ButtonType.CANCEL) {
-                return;
-            }
-            if (bt == ButtonType.OK) {
-                Jfx.runOnSwing(() -> {Jfx.getMainFrame().dispose();});
-            }
+        	confirmExit(editor, false);
         });
     }
+
+    /**
+     * 确认删除
+     * 
+     * @param editor
+     */
+	public static ButtonType confirmExit(Editor editor, boolean reopen) {
+        //Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION,Manager.getRes(ResConstants.COMMON_QUICK),
+		        new ButtonType(Manager.getRes(ResConstants.COMMON_EXIT_NOTSAVE), ButtonBar.ButtonData.NO),
+		        new ButtonType(Manager.getRes(ResConstants.COMMON_EXIT_SAVE), ButtonBar.ButtonData.YES),
+		        new ButtonType(Manager.getRes(ResConstants.COMMON_EXIT_CANCEL), ButtonBar.ButtonData.CANCEL_CLOSE));
+		
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setHeaderText(Manager.getRes(ResConstants.COMMON_QUICK));
+		alert.setContentText(Manager.getRes(ResConstants.COMMON_QUICK_CONFIRM));
+		
+		Optional<ButtonType> result = alert.showAndWait();
+		ButtonType bt = result.get();
+		// 取消关闭
+		if (bt.getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE) {
+		    return bt;
+		}
+		// 不保存退出
+		if (bt.getButtonData() == ButtonBar.ButtonData.NO) {
+		    Jfx.runOnSwing(() -> {
+		    	if (!reopen) {
+		    		Jfx.getMainFrame().dispose();
+		    	}
+		    });
+		}
+		// 保存退出
+		if (bt.getButtonData() == ButtonBar.ButtonData.YES) {
+			editor.save();
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
+			
+		    Jfx.runOnSwing(() -> {
+		        if (!reopen) {
+		        	Jfx.getMainFrame().dispose();
+		        }
+		    });
+		}
+		
+		return bt;
+	}
 }
