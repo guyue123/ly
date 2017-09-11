@@ -381,7 +381,7 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         }
         // controlObj.setVisible(true);
     	// 2017/09/10 只有实体模型和灯光可以选择移动
-        controlObj.setVisible(ControlTile.canBeSelectedModel(selectObj));
+        controlObj.setVisible(ControlTile.canBeSelectedRotation(selectObj));
         
         controlObj.setLocalTranslation(ModelManager.getInstance().getTranslation(selectObj.getControlSpatial()));
         Mode mode = edit.getMode();

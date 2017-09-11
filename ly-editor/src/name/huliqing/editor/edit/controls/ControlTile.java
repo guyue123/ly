@@ -146,15 +146,31 @@ public abstract class ControlTile<T, E extends JmeEdit> {
     }
     
     /**
-     * 确定哪些模型是可以选择的
+     * 确定哪些模型是可以选择移动
      * @param selectObj
      * @return
      */
-    public static boolean canBeSelectedModel(ControlTile selectObj) {
+    public static boolean canBeSelectedMove(ControlTile selectObj) {
     	// 只有实体模型和灯光可以移动
     	if (selectObj instanceof EntityControlTile) {
     		if (EntityConstants.ENTITY_SIMPLE_MODEL.equals(((EntityControlTile)selectObj).getTarget().getData().getTagName()) ||
     				EntityConstants.ENTITY_POINT_LIGHT.equals(((EntityControlTile)selectObj).getTarget().getData().getTagName())) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
+    
+    /**
+     * 确定哪些模型是可以选择旋转
+     * @param selectObj
+     * @return
+     */
+    public static boolean canBeSelectedRotation(ControlTile selectObj) {
+    	// 只有实体模型和灯光可以移动
+    	if (selectObj instanceof EntityControlTile) {
+    		if (EntityConstants.ENTITY_SIMPLE_MODEL.equals(((EntityControlTile)selectObj).getTarget().getData().getTagName())) {
     			return true;
     		}
     	}
