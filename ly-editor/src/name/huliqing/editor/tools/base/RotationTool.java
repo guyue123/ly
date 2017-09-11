@@ -296,7 +296,7 @@ public class RotationTool extends AbstractTool implements SimpleEditListener, To
         rotationAxis = null;
         rotateCenter = null;
         afterTranlation = null;
-        controlObj.setAxisVisible(true);
+        controlObj.setAxisVisible(ControlTile.canBeSelectedModel(selectObj));
         controlObj.setAxisLineVisible(false);
     }
     
