@@ -248,7 +248,7 @@ public class MoveTool extends AbstractTool implements SimpleEditListener, Toggle
         freeMove = false;
         axisMove = false;
         moveAxis = null;
-        controlObj.setAxisVisible(ControlTile.canBeSelectedModel(selectObj));
+        controlObj.setAxisVisible(true);
         controlObj.setAxisLineVisible(false);
     }
     
