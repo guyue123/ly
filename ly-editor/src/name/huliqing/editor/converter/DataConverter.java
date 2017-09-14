@@ -291,12 +291,12 @@ public abstract class DataConverter<E extends JfxAbstractEdit, T extends ObjectD
     
     public void setLightPane(String childTitle, DataConverter childConverter) {
         // 子面板，显示子联系的物体
-    	TitledPane lightChildPane = new TitledPane();
+/*    	TitledPane lightChildPane = new TitledPane();
     	lightChildPane.setText(childTitle);
     	lightChildPane.setContent(childConverter.getLayout());
-    	lightChildPane.setVisible(true);
+    	lightChildPane.setVisible(true);*/
         
-    	childLightPane.getChildren().add(lightChildPane);
+    	childLightPane.getChildren().add(childConverter.getLayout());
     }
     
     public void setShadowPane(Pane shadowPane) {

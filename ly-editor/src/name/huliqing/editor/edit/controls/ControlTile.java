@@ -151,15 +151,16 @@ public abstract class ControlTile<T, E extends JmeEdit> {
      * @return
      */
     public static boolean canBeSelectedMove(ControlTile selectObj) {
+    	return true;
     	// 只有实体模型和灯光可以移动
-    	if (selectObj instanceof EntityControlTile) {
+/*    	if (selectObj instanceof EntityControlTile) {
     		if (EntityConstants.ENTITY_SIMPLE_MODEL.equals(((EntityControlTile)selectObj).getTarget().getData().getTagName()) ||
     				EntityConstants.ENTITY_POINT_LIGHT.equals(((EntityControlTile)selectObj).getTarget().getData().getTagName())) {
     			return true;
     		}
     	}
     	
-    	return false;
+    	return false;*/
     }
     
     /**
@@ -168,14 +169,15 @@ public abstract class ControlTile<T, E extends JmeEdit> {
      * @return
      */
     public static boolean canBeSelectedRotation(ControlTile selectObj) {
+    	return true;
     	// 只有实体模型和灯光可以移动
-    	if (selectObj instanceof EntityControlTile) {
+/*    	if (selectObj instanceof EntityControlTile) {
     		if (EntityConstants.ENTITY_SIMPLE_MODEL.equals(((EntityControlTile)selectObj).getTarget().getData().getTagName())) {
     			return true;
     		}
     	}
     	
-    	return false;
+    	return false;*/
     }
     
     /**
