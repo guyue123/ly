@@ -248,7 +248,7 @@ public class MoveTool extends AbstractTool implements SimpleEditListener, Toggle
         freeMove = false;
         axisMove = false;
         moveAxis = null;
-        controlObj.setAxisVisible(true);
+        controlObj.setAxisVisible(ControlTile.canBeSelectedMove(selectObj));
         controlObj.setAxisLineVisible(false);
     }
     
@@ -317,7 +317,15 @@ public class MoveTool extends AbstractTool implements SimpleEditListener, Toggle
         }
         // controlObj.setVisible(true);
     	// 2017/09/10 只有实体模型和灯光可以选择移动
-        controlObj.setVisible(ControlTile.canBeSelectedMove(selectObj));
+        boolean canMove = ControlTile.canBeSelectedMove(selectObj);
+        if (!canMove) {
+            controlObj.setAxisVisible(false);
+            controlObj.setAxisLineVisible(false);
+        	return;
+        }
+        controlObj.setAxisVisible(true);
+        controlObj.setAxisLineVisible(false);
+        controlObj.setVisible(canMove);
         
         controlObj.setLocalTranslation(ModelManager.getInstance().getTranslation(selectObj.getControlSpatial()));
         Mode mode = edit.getMode();
