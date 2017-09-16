@@ -22,9 +22,17 @@ package name.huliqing.editor.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import name.huliqing.editor.constants.AssetConstants;
 import name.huliqing.editor.constants.StyleConstants;
+import name.huliqing.editor.ui.utils.JfxUtils;
 
 /**
  *
@@ -39,9 +47,9 @@ public class ComponentZone extends VBox{
      */
     private List<String> componentTypes;
     
+    
     public ComponentZone() {
         super();
-        
         init();
     }
     
@@ -65,7 +73,6 @@ public class ComponentZone extends VBox{
         if (types != null) {
         	componentTypes.addAll(types);
         }
-        
         init();
     }
     
@@ -81,19 +88,45 @@ public class ComponentZone extends VBox{
         		componentTypes.add(t);
         	}
         }
-        
         init();
     }
 
-	private void init() {
+	public void init() {       
 		ComponentsForm cv = new ComponentsForm(componentTypes);
         // componentsPanel.setContent(cv);
 		componentsPanel.getChildren().add(cv);
         //componentsPanel.setText(Manager.getRes(ResConstants.FORM_COMPONENTS_TITLE));
         
-        getChildren().add(componentsPanel);
+		getChildren().addAll(searchPane(cv), componentsPanel);
         getStyleClass().add(StyleConstants.CLASS_HVBOX);
         setPadding(Insets.EMPTY);
 	}
-    
+	
+	private Pane searchPane(final ComponentsForm cf) {
+        StackPane filterPane = new StackPane();
+        HBox imageView = new HBox(JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_SEARCH));
+        TextField inputFilter = new TextField();
+		
+        imageView.setPadding(new Insets(0, 0, 0, 10));
+        imageView.setMinWidth(16);
+        imageView.setMaxWidth(16);
+        imageView.prefHeightProperty().bind(filterPane.heightProperty());
+        imageView.setAlignment(Pos.CENTER);
+        inputFilter.prefWidthProperty().bind(filterPane.widthProperty());
+        inputFilter.prefHeightProperty().bind(filterPane.heightProperty());
+        inputFilter.setPadding(new Insets(0, 0, 0, 25));
+        filterPane.setMinHeight(25);
+        filterPane.setAlignment(Pos.CENTER_LEFT);
+        
+        filterPane.getChildren().add(inputFilter);
+        filterPane.getChildren().add(imageView);
+       // getChildren().add(filterPane);
+        
+        inputFilter.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+        	cf.updateList(newValue);
+        });
+        inputFilter.setStyle(StyleConstants.CSS_CORNER_ROUND_TOP);
+        
+        return filterPane;
+	}
 }

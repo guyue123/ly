@@ -189,6 +189,59 @@ public class ComponentsForm extends TableView<ComponentDefine> implements Config
             getItems().addAll(filtComponent(cdsFilter));
         }
     }
+    
+	
+    public void updateList(String filterText) {
+    	List<ComponentDefine> tempList = new ArrayList<>();
+    	List<ComponentDefine> cdList = new ArrayList<>();
+    	
+        List<ComponentDefine> cds = ComponentManager.getComponentsByType(ComponentConstants.ENTITY);
+        if (cds != null) {
+        	cdList.addAll(filtComponent(cds));
+        }
+        List<ComponentDefine> cdsFilter = ComponentManager.getComponentsByType(ComponentConstants.ENTITY_FILTER);
+        if (cdsFilter != null) {
+        	cdList.addAll(filtComponent(cdsFilter));
+        }
+        
+        tempList.clear();
+        getItems().clear();
+        
+        if (cdsFilter == null || cdsFilter.isEmpty()) {
+        	return;
+        }
+        
+        // 无任何过滤
+        if (filterText == null || filterText.isEmpty()) {
+            for (ComponentDefine e : cdList) {
+                tempList.add(e);
+            }
+            getItems().addAll(tempList);
+            return;
+        }
+        
+        // 允许通过半角","号分隔多个过滤项
+        String[] filters = filterText.split(",");
+        String entityStr;
+        for (ComponentDefine e : cdList) {
+            if (filters.length <= 0) {
+                tempList.add(e);
+                continue;
+            }
+            entityStr = e.getId();
+            if (e.getName() != null) {
+                entityStr += "(" + e.getName() + ")";
+            }
+            
+            for (String filter : filters) {
+                if (!filter.isEmpty() && entityStr.toLowerCase().contains(filter)) {
+                    tempList.add(e);
+                }
+            }
+        }
+        getItems().addAll(tempList);
+    }
+    
 
     private ComponentDefine getMainSelectItem() {
         ObservableList<ComponentDefine> items = getSelectionModel().getSelectedItems();
