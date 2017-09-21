@@ -19,6 +19,7 @@
  */
 package name.huliqing.editor.edit;
 
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 import name.huliqing.editor.Editor;
 

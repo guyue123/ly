@@ -20,31 +20,49 @@
 package name.huliqing.editor.converter.data;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
 import name.huliqing.editor.component.ComponentDefine;
+import name.huliqing.editor.constants.AssetConstants;
 import name.huliqing.editor.constants.EntityConstants;
+import name.huliqing.editor.constants.ResConstants;
 import name.huliqing.editor.converter.DataConverter;
 import name.huliqing.editor.converter.FieldConverter;
 import name.huliqing.editor.edit.Mode;
+import name.huliqing.editor.edit.UndoRedo;
 import name.huliqing.editor.edit.controls.ControlTile;
 import name.huliqing.editor.edit.controls.entity.EntityControlTile;
 import name.huliqing.editor.edit.controls.entity.EntityControlTileListener;
 import name.huliqing.editor.edit.scene.JfxSceneEdit;
 import name.huliqing.editor.edit.scene.JfxSceneEditListener;
+import name.huliqing.editor.edit.scene.SceneEdit;
 import name.huliqing.editor.manager.ComponentManager;
 import name.huliqing.editor.manager.ConverterManager;
+import name.huliqing.editor.manager.Manager;
+import name.huliqing.editor.ui.utils.JfxUtils;
 import name.huliqing.fxswing.Jfx;
 import name.huliqing.luoying.data.EntityData;
 import name.huliqing.luoying.manager.ModelManager;
 import name.huliqing.luoying.object.entity.Entity;
+import name.huliqing.luoying.object.scene.Scene;
 
 /**
  * 场景实体转换器
@@ -59,6 +77,10 @@ public class EntityDataConverter extends DataConverter<JfxSceneEdit, EntityData>
     private Vector3f modelSize;
     
     public static DecimalFormat df =new DecimalFormat("#.00");
+    
+    private static final String lableStyle = "-fx-text-fill: white;-fx-background-color: #199ED8;-fx-background-insets: 3;-fx-background-radius: 5;-fx-padding: 10;";
+    
+    private static final String btnStyle = "-fx-text-fill: white;-fx-background-color: #ea9d01;-fx-background-insets: 3;-fx-background-radius: 5;-fx-padding: 10;";
     
     @Override
     public void initialize() {
@@ -142,20 +164,17 @@ public class EntityDataConverter extends DataConverter<JfxSceneEdit, EntityData>
     		}
     	}
     	
-    	
+    	fieldPanel.setPadding(new Insets(3));
+    	dataScroll.setMargin(fieldPanel, new Insets(2, 0, 2, 0));
 		if (fieldDefines != null && !fieldDefines.isEmpty()) {
-            
     		// 标题
     		ComponentDefine cd = ComponentManager.getComponentsById(data.getId());
     		// 模型名称
     		String name = cd.getName();
     		// 模型编号
     		String id = cd.getId();
-    		Label label2 = new Label(id + " " + name);
-    		label2.setBackground(null);
-    		label2.setStyle("-fx-text-fill: white;-fx-background-color: #199ED8;-fx-background-insets: 3;-fx-background-radius: 5;-fx-padding: 10;");
-    		fieldPanel.getChildren().add(label2);
-			
+    		// 头部
+    		fieldPanel.getChildren().add(initHeader(name, id));
             fieldDefines.values().forEach(t -> {
                 FieldConverter pc = ConverterManager.createPropertyConverter(jfxEdit, data, t, this);
                 pc.initialize();
@@ -165,44 +184,8 @@ public class EntityDataConverter extends DataConverter<JfxSceneEdit, EntityData>
             	if (EntityConstants.ENTITY_SIMPLE_MODEL.equals(data.getTagName())) {
             		List<String> hideFields = featureHelper.getAsList(FEATURE_HIDE_FIELDS);
             		if (!hideFields.contains(t.getField())) {
-	            		// 模型图片
-            			
 	            		// 模型尺寸
-            			if ("scale".equals(t.getField()) && modelSize != null) {
-            				HBox yLayout = new HBox();
-            				Label labelX = new Label(" 长 ");
-            				labelX.setStyle("-fx-padding: 4;");
-            				
-            				TextField xField = new TextField(String.valueOf(df.format(modelSize.getX() * data.getScale().getX())));
-            				xField.setStyle("-fx-border-color: blue;-fx-border-width: 1px;-fx-background-radius: 5;");
-            				xField.setPromptText("长度(厘米)");
-            				xField.setPrefWidth(90);
-            				
-            				Label labelY = new Label(" 宽 ");
-            				labelY.setStyle("-fx-padding: 4;");
-            				
-            				TextField yField = new TextField(String.valueOf(df.format(modelSize.getY() * data.getScale().getY())));
-            				yField.setPromptText("宽度(厘米)");
-            				yField.setStyle("-fx-border-color: blue;-fx-border-width: 1px;-fx-background-radius: 5;");
-            				yField.setPrefWidth(90);
-            				
-            				Label labelZ = new Label(" 高 ");
-            				labelZ.setStyle("-fx-padding: 4;");
-            				
-            				TextField zField = new TextField(String.valueOf(df.format(modelSize.getZ() * data.getScale().getZ())));
-            				zField.setStyle("-fx-border-color: blue;-fx-border-width: 1px;-fx-background-radius: 5;");
-            				zField.setPromptText("高度(厘米)");
-            				zField.setPrefWidth(90);
-            				
-            				yLayout.getChildren().addAll(labelX, xField, labelY, yField, labelZ, zField);
-            				yLayout.setPadding(new Insets(10, 10, 10, 10));
-            				//fieldPanel.getChildren().add(yLayout);
-            				fieldPanel.getChildren().add(pc.getLayout());
-            			} else {
-            				fieldPanel.getChildren().add(pc.getLayout());
-            			}
-            			
-	            		// fieldPanel.getChildren().add(pc.getLayout());
+            			fieldPanel.getChildren().add(pc.getLayout());
             		}
             	} else {
             		fieldPanel.getChildren().add(pc.getLayout());
@@ -213,4 +196,157 @@ public class EntityDataConverter extends DataConverter<JfxSceneEdit, EntityData>
             });
         }
 	}
+
+    /**
+     * 生成模型头部
+     * @param name 名字
+     * @param id ID
+     * @return
+     */
+	protected HBox initHeader(String name, String id) {
+		// 显示，隐藏/显示
+		HBox hBox = new HBox();
+		
+		// 实体模型头部
+		Label label2 = new Label(name + " （编号：" + id + "）");
+		label2.setBackground(null);
+		label2.setStyle(lableStyle);
+		
+		if (data.isTypeof(EntityConstants.ENTITY_SIMPLE_MODEL)) {
+			label2 = new Label(name + " （编号：" + id + "）");
+			label2.setBackground(null);
+			label2.setStyle(lableStyle);
+			hBox.getChildren().addAll(label2);
+		} else  if(data.isTypeof(EntityConstants.ENTITY_DIRECTIONAL_LIGHT)) {
+			ComponentDefine cdDL = ComponentManager.getComponentsById(EntityConstants.ENTITY_DIRECTIONAL_LIGHT);
+			label2 = new Label(name);
+			label2.setGraphic(JfxUtils.createImage(cdDL.getIcon(), 20, 20));
+			label2.setContentDisplay(ContentDisplay.RIGHT);
+			label2.setGraphicTextGap(10);
+			label2.setStyle(lableStyle);
+			// 删除按钮
+			Button removeBtn = removeAction();
+			// 切换显示隐藏
+			ToggleButton enableBtn = enableAction();
+			hBox.getChildren().addAll(label2, removeBtn, enableBtn);
+			
+		} else  if(data.isTypeof(EntityConstants.ENTITY_POINT_LIGHT)) {
+			ComponentDefine cdPL = ComponentManager.getComponentsById(EntityConstants.ENTITY_POINT_LIGHT);
+			
+			label2 = new Label(name);
+			label2.setGraphic(JfxUtils.createImage(cdPL.getIcon(), 20, 20));
+			label2.setContentDisplay(ContentDisplay.RIGHT);
+			label2.setGraphicTextGap(10);
+			label2.setStyle(lableStyle);
+			
+			// 选择灯光
+			label2.setOnMouseClicked(t -> {
+				jfxEdit.setSelected(data);
+	        });
+			
+			// 删除按钮
+			Button removeBtn = removeAction();
+			// 切换显示隐藏
+			ToggleButton enableBtn = enableAction();
+			hBox.getChildren().addAll(label2, removeBtn, enableBtn);
+		} else {
+			hBox.getChildren().addAll(label2);
+		}
+
+		fieldPanel.setMargin(hBox, new Insets(0, 0, 2, 0));
+		return hBox;
+	}
+
+	/**
+	 * 隐藏/显示
+	 * @return
+	 */
+	protected ToggleButton enableAction() {
+		ToggleButton enableBtn = new ToggleButton("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_EYE));
+		enableBtn.setStyle(btnStyle);
+		enableBtn.setTooltip(new Tooltip("开灯/关灯"));
+        enableBtn.setSelected(data.getAsBoolean("enabled", true));
+        enableBtn.setAlignment(Pos.CENTER_RIGHT);
+        enableBtn.setPrefWidth(16);
+        enableBtn.selectedProperty().addListener((ObservableValue<? extends Boolean> ob, Boolean oldValue, Boolean newValue) -> {
+            Scene scene = jfxEdit.getJmeEdit().getScene();
+            if (scene == null)
+                return;
+            Jfx.runOnJme(() -> {
+                Entity entity = scene.getEntity(data.getUniqueId());
+                if (entity != null) {
+                    entity.setEnabled(newValue);
+                }
+            });
+        });
+		return enableBtn;
+	}
+
+	/**
+	 * 删除动作
+	 * @return
+	 */
+	protected Button removeAction() {
+		Button removeBtn = new Button("", JfxUtils.createIcon(AssetConstants.INTERFACE_ICON_SUBTRACT));
+		removeBtn.setStyle(btnStyle);
+		removeBtn.setTooltip(new Tooltip("删除此灯光"));
+		removeBtn.setOnAction(c -> {
+      	  // 删除确认
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.initModality(Modality.APPLICATION_MODAL);
+            alert.setHeaderText(Manager.getRes(ResConstants.MODEL_DELETE));
+            alert.setContentText(Manager.getRes(ResConstants.MODEL_DELETE_CONFIRM));
+            
+            Optional<ButtonType> result = alert.showAndWait();
+            ButtonType bt = result.get();
+            // 取消关闭
+            if (bt.getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE) {
+                return;
+            }
+      	  
+            Scene scene = jfxEdit.getJmeEdit().getScene();
+            if (scene == null)
+                return;
+            
+            Jfx.runOnJme(() -> {
+                List<EntityControlTile> ectsRemove = new ArrayList(1);
+                SceneEdit se = jfxEdit.getJmeEdit();
+                EntityControlTile ect = se.getEntityControlTile(data);
+                if (ect != null) {
+                    ectsRemove.add(ect);
+                }
+                ectsRemove.add(ect);
+                EntityRemovedUndoRedo erur = new EntityRemovedUndoRedo(ectsRemove);
+                erur.redo();
+                se.addUndoRedo(erur);
+                
+                dataScroll.managedProperty().bind(dataScroll.visibleProperty());
+                dataScroll.setVisible(false);
+                dataScroll.getChildren().clear();
+            });
+        });
+		return removeBtn;
+	}
+	
+    
+    private class EntityRemovedUndoRedo implements UndoRedo {
+        private final List<EntityControlTile> ectRemoved = new ArrayList();
+        public EntityRemovedUndoRedo(List<EntityControlTile> ectRemoved) {
+            this.ectRemoved.addAll(ectRemoved);
+        }
+        @Override
+        public void undo() {
+            SceneEdit se = jfxEdit.getJmeEdit();
+            for (int i = ectRemoved.size() - 1; i >= 0; i--) {
+                se.addControlTile(ectRemoved.get(i));
+            }
+        }
+        @Override
+        public void redo() {
+            SceneEdit se = jfxEdit.getJmeEdit();
+            for (int i = 0; i < ectRemoved.size(); i++) {
+                se.removeControlTile(ectRemoved.get(i));
+            }
+        }
+    }
 }

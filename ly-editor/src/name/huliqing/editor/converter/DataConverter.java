@@ -26,7 +26,6 @@ import java.util.Map;
 
 import com.jme3.export.Savable;
 
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;

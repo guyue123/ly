@@ -21,9 +21,11 @@ package name.huliqing.editor.converter.field;
 
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
 import name.huliqing.editor.converter.SimpleFieldConverter;
 import name.huliqing.editor.utils.Validator;
 import name.huliqing.luoying.xml.Converter;
@@ -35,7 +37,14 @@ import name.huliqing.luoying.xml.Converter;
 public class FloatTextConverter extends SimpleFieldConverter{
     
     public final static String FEATURE_MIN = "min"; 
-    public final static String FEATURE_MAX = "max"; 
+    public final static String FEATURE_MAX = "max";
+    public final static String FEATURE_LABEL = "label"; 
+    
+    // 容器
+    private final HBox floatBox = new HBox();
+    
+    // 标签
+    private final Label contentLabel = new Label();
     
     private final TextField content = new TextField("");
     private Float lastValueSaved;
@@ -59,6 +68,8 @@ public class FloatTextConverter extends SimpleFieldConverter{
                 updateChangedAndSave();
             }
         });
+        
+        floatBox.getChildren().addAll(contentLabel, content);
     }
 
     @Override
@@ -66,6 +77,9 @@ public class FloatTextConverter extends SimpleFieldConverter{
         super.initialize();
         min = featureHelper.getAsFloat(FEATURE_MIN);
         max = featureHelper.getAsFloat(FEATURE_MAX);
+        
+    	// 设置名称
+        contentLabel.setText(featureHelper.getAsString(FEATURE_LABEL));
     }
 
     @Override
@@ -80,7 +94,7 @@ public class FloatTextConverter extends SimpleFieldConverter{
 
     @Override
     protected Node createLayout() {
-        return content;
+        return floatBox;
     }
     
     private void updateChangedAndSave() {
